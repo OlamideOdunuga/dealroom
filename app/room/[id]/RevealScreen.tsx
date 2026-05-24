@@ -256,31 +256,6 @@ async function handleReveal() {
           <p className="text-xs text-gray-500 mt-1">These are calculated midpoints. Both parties must agree to proceed.</p>
         </div>
       )}
-    {showCancelConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-6">
-          <div className="w-full max-w-sm rounded-xl bg-gray-900 border border-gray-700 p-6 flex flex-col gap-4">
-            <h2 className="text-white font-semibold text-lg">Cancel this deal room?</h2>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              This room will be closed and removed from your dashboard. <span className="text-white">This cannot be undone.</span>
-            </p>
-            <div className="flex gap-3 mt-2">
-              <button
-                onClick={() => { setShowCancelConfirm(false); setCancellingRoomId(null); }}
-                className="flex-1 rounded-lg border border-gray-700 px-4 py-2 text-sm font-semibold text-gray-300 hover:bg-gray-800 transition-colors"
-              >
-                Keep Room
-              </button>
-              <button
-                onClick={() => cancellingRoomId && handleCancelRoom(cancellingRoomId)}
-                disabled={isCancelling}
-                className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 transition-colors"
-              >
-                {isCancelling ? "Cancelling..." : "Yes, Cancel Room"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
