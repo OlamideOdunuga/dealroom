@@ -186,7 +186,20 @@ const { data: ensName } = useEnsName({ address, chainId: 1 });
             </div>
 
             {loadingRooms ? (
-              <p className="text-gray-400 text-sm">Loading your deals...</p>
+              <div className="flex flex-col gap-3">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between bg-gray-900 border border-gray-800 rounded-xl px-5 py-4 animate-pulse"
+                  >
+                    <div className="flex flex-col gap-2">
+                      <div className="h-3.5 w-24 bg-gray-700 rounded" />
+                      <div className="h-3 w-36 bg-gray-800 rounded" />
+                    </div>
+                    <div className="h-6 w-20 bg-gray-700 rounded-full" />
+                  </div>
+                ))}
+              </div>
             ) : rooms.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-6 py-20 border border-dashed border-gray-700 rounded-xl px-6 text-center">
                 <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gray-800">
