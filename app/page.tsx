@@ -121,7 +121,7 @@ export default function Home() {
             </div>
             <div className="flex gap-3 items-start">
               <span className="text-xs font-bold text-gray-500 bg-gray-800 rounded-full w-5 h-5 flex items-center justify-center shrink-0 mt-0.5">2</span>
-              <p className="text-xs text-gray-400">Both parties privately submit their terms — encrypted on-chain via CDR</p>
+              <p className="text-xs text-gray-400">Both parties privately submit their terms, encrypted on-chain via CDR</p>
             </div>
             <div className="flex gap-3 items-start">
               <span className="text-xs font-bold text-gray-500 bg-gray-800 rounded-full w-5 h-5 flex items-center justify-center shrink-0 mt-0.5">3</span>
