@@ -152,8 +152,16 @@ export default function Home() {
             {loadingRooms ? (
               <p className="text-gray-400 text-sm">Loading your deals...</p>
             ) : rooms.length === 0 ? (
-              <div className="flex flex-col items-center justify-center gap-4 py-20 border border-dashed border-gray-700 rounded-xl">
-                <p className="text-gray-400">No deals yet.</p>
+              <div className="flex flex-col items-center justify-center gap-6 py-20 border border-dashed border-gray-700 rounded-xl px-6 text-center">
+                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gray-800">
+                  <svg className="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <p className="text-white font-medium">No deals yet</p>
+                  <p className="text-gray-500 text-sm max-w-xs">Create your first confidential deal room and share the link with your collaborator</p>
+                </div>
                 <button
                   onClick={handleCreateRoom}
                   disabled={isCreating}
