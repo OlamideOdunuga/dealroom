@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getRoom, joinRoom, updateVault } from "@/lib/rooms";
 import { sealTermsVault, VaultError } from "@/lib/vault";
 import TermsForm from "./TermsForm";
@@ -16,6 +17,7 @@ export default function RoomPage() {
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
 
+  const router = useRouter();
   const [room, setRoom] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [hasSubmitted, setHasSubmitted] = useState(false);
@@ -104,7 +106,15 @@ useEffect(() => {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-gray-950 px-6 py-12">
       <div className="w-full max-w-lg flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white">Deal Room</h1>
+        <div className="flex flex-col gap-1">
+          <button
+            onClick={() => router.push("/")}
+            className="text-xs text-gray-500 hover:text-gray-300 transition-colors flex items-center gap-1"
+          >
+            ← Back to dashboard
+          </button>
+          <h1 className="text-2xl font-bold text-white">Room #{id}</h1>
+        </div>
         <ConnectButton />
       </div>
 
