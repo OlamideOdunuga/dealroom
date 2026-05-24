@@ -135,12 +135,20 @@ useEffect(() => {
             <div className="bg-gray-800 rounded-lg px-4 py-3 text-sm text-white break-all">
               {typeof window !== "undefined" ? window.location.href : ""}
             </div>
-            <button
-              onClick={() => navigator.clipboard.writeText(window.location.href)}
-              className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-950 hover:bg-gray-200"
-            >
-              Copy Link
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => navigator.clipboard.writeText(window.location.href)}
+                className="flex-1 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-950 hover:bg-gray-200"
+              >
+                Copy Link
+              </button>
+              <button
+                onClick={() => navigator.clipboard.writeText(id)}
+                className="flex-1 rounded-lg bg-gray-800 border border-gray-700 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700"
+              >
+                Copy Room ID
+              </button>
+            </div>
           </div>
         )}
 
