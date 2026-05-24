@@ -4,7 +4,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useState, useEffect } from "react";
 import { useAccount, useEnsName } from "wagmi";
 import { useRouter } from "next/navigation";
-import { createRoom } from "@/lib/rooms";
+import { createRoom, cancelRoom } from "@/lib/rooms";
 import { supabase } from "@/lib/supabase";
 
 type Room = {
@@ -24,6 +24,9 @@ const { data: ensName } = useEnsName({ address, chainId: 1 });
   const [loadingRooms, setLoadingRooms] = useState(false);
   const [joinId, setJoinId] = useState("");
   const [joinError, setJoinError] = useState("");
+const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+const [cancellingRoomId, setCancellingRoomId] = useState<string | null>(null);
+const [isCancelling, setIsCancelling] = useState(false);
 
   function handleJoinById() {
     const trimmed = joinId.trim();
@@ -49,6 +52,20 @@ const { data: ensName } = useEnsName({ address, chainId: 1 });
     }
     fetchRooms();
   }, [address]);
+
+  async function handleCancelRoom(roomId: string) {
+    setIsCancelling(true);
+    try {
+      await cancelRoom(roomId);
+      setRooms(prev => prev.filter(r => r.id !== roomId));
+    } catch {
+      // silent
+    } finally {
+      setIsCancelling(false);
+      setShowCancelConfirm(false);
+      setCancellingRoomId(null);
+    }
+  }
 
   async function handleCreateRoom() {
     if (!address) return;
@@ -224,6 +241,9 @@ const { data: ensName } = useEnsName({ address, chainId: 1 });
                 {rooms.map((room) => {
                   const s = statusLabel(room.status);
                   const isCreator = room.creator_address === address;
+                  const isOlderThan24h = new Date().getTime() - new Date(room.created_at).getTime() > 24 * 60 * 60 * 1000;
+                  const canCancel = isCreator && room.status !== "both_committed" && isOlderThan24h;
+
                   return (
                     <div
                       key={room.id}
@@ -234,9 +254,23 @@ const { data: ensName } = useEnsName({ address, chainId: 1 });
                         <p className="text-white text-sm font-medium">Room #{room.id}</p>
                         <p className="text-gray-500 text-xs">{formatDate(room.created_at)} · {isCreator ? "You created" : "You joined"}</p>
                       </div>
-                      <span className={`text-xs font-medium px-3 py-1 rounded-full ${s.color}`}>
-                        {s.text}
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <span className={`text-xs font-medium px-3 py-1 rounded-full ${s.color}`}>
+                          {s.text}
+                        </span>
+                        {canCancel && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCancellingRoomId(room.id);
+                              setShowCancelConfirm(true);
+                            }}
+                            className="text-xs text-red-400 hover:text-red-300 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
@@ -245,6 +279,56 @@ const { data: ensName } = useEnsName({ address, chainId: 1 });
           </div>
         )}
       </main>
+    {showCancelConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-6">
+          <div className="w-full max-w-sm rounded-xl bg-gray-900 border border-gray-700 p-6 flex flex-col gap-4">
+            <h2 className="text-white font-semibold text-lg">Cancel this deal room?</h2>
+            <p className="text-gray-400 text-sm leading-relaxed">
+              This room will be closed and removed from your dashboard. <span className="text-white">This cannot be undone.</span>
+            </p>
+            <div className="flex gap-3 mt-2">
+              <button
+                onClick={() => { setShowCancelConfirm(false); setCancellingRoomId(null); }}
+                className="flex-1 rounded-lg border border-gray-700 px-4 py-2 text-sm font-semibold text-gray-300 hover:bg-gray-800 transition-colors"
+              >
+                Keep Room
+              </button>
+              <button
+                onClick={() => cancellingRoomId && handleCancelRoom(cancellingRoomId)}
+                disabled={isCancelling}
+                className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 transition-colors"
+              >
+                {isCancelling ? "Cancelling..." : "Yes, Cancel Room"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    {showCancelConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-6">
+          <div className="w-full max-w-sm rounded-xl bg-gray-900 border border-gray-700 p-6 flex flex-col gap-4">
+            <h2 className="text-white font-semibold text-lg">Cancel this deal room?</h2>
+            <p className="text-gray-400 text-sm leading-relaxed">
+              This room will be closed and removed from your dashboard. <span className="text-white">This cannot be undone.</span>
+            </p>
+            <div className="flex gap-3 mt-2">
+              <button
+                onClick={() => { setShowCancelConfirm(false); setCancellingRoomId(null); }}
+                className="flex-1 rounded-lg border border-gray-700 px-4 py-2 text-sm font-semibold text-gray-300 hover:bg-gray-800 transition-colors"
+              >
+                Keep Room
+              </button>
+              <button
+                onClick={() => cancellingRoomId && handleCancelRoom(cancellingRoomId)}
+                disabled={isCancelling}
+                className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 transition-colors"
+              >
+                {isCancelling ? "Cancelling..." : "Yes, Cancel Room"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

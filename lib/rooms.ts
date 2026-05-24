@@ -102,3 +102,12 @@ export async function updateVault(
 
   return room;
 }
+
+export async function cancelRoom(roomId: string): Promise<void> {
+  const { error } = await supabase
+    .from("rooms")
+    .update({ status: "cancelled" })
+    .eq("id", roomId);
+
+  if (error) throw error;
+}

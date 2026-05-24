@@ -146,6 +146,28 @@ function handleCancelSeal() {
     );
   }
 
+  if (room?.status === "cancelled") {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gray-950 px-6 text-center">
+        <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gray-800">
+          <svg className="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </div>
+        <div className="flex flex-col gap-2">
+          <p className="text-white font-semibold text-lg">Deal room cancelled</p>
+          <p className="text-gray-500 text-sm max-w-xs">This deal room was cancelled by the creator. No terms were exchanged.</p>
+        </div>
+        <button
+          onClick={() => router.push("/")}
+          className="rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-gray-950 hover:bg-gray-200 transition-colors"
+        >
+          Back to dashboard
+        </button>
+      </main>
+    );
+  }
+
   if (!isConnected) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gray-950">
