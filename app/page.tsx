@@ -2,7 +2,7 @@
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useState, useEffect } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useEnsName } from "wagmi";
 import { useRouter } from "next/navigation";
 import { createRoom } from "@/lib/rooms";
 import { supabase } from "@/lib/supabase";
@@ -17,6 +17,7 @@ type Room = {
 
 export default function Home() {
   const { isConnected, address } = useAccount();
+const { data: ensName } = useEnsName({ address, chainId: 1 });
   const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -179,7 +180,7 @@ export default function Home() {
           <div className="flex flex-col gap-8">
             <div>
               <h2 className="text-xl font-bold text-white mb-1">
-                Welcome back{address ? `, ${address.slice(0, 6)}...${address.slice(-4)}` : ""}
+                Welcome back{address ? `, ${ensName ?? `${address.slice(0, 6)}...${address.slice(-4)}`}` : ""}
               </h2>
               <p className="text-gray-400 text-sm">Here are all the deal rooms you&apos;ve been part of.</p>
             </div>
