@@ -123,7 +123,7 @@ useEffect(() => {
       Status: <span className="text-white font-medium">
       {room?.status === "waiting" ? "Waiting for other party" :
       room?.status === "both_joined" ? "Both parties connected" :
-      room?.status === "both_committed" ? "Terms sealed — ready to reveal" :
+      room?.status === "both_committed" ? "Terms sealed. Ready to reveal" :
       room?.status}
       </span>
       </div>
