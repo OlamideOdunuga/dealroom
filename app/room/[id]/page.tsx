@@ -23,7 +23,9 @@ export default function RoomPage() {
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [isSealing, setIsSealing] = useState(false);
   const [sealError, setSealError] = useState<string | null>(null);
-   const [ownTerms, setOwnTerms] = useState<object | null>(null);
+  const [ownTerms, setOwnTerms] = useState<object | null>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [pendingTerms, setPendingTerms] = useState<object | null>(null);
 useEffect(() => {
   const stored = localStorage.getItem(`ownTerms_${id}`);
   console.log("[ownTerms] stored:", stored)
@@ -52,7 +54,20 @@ useEffect(() => {
     await joinRoom(id, address);
     fetchRoom();
   }
+function handleTermsPreSubmit(terms: object) {
+  setPendingTerms(terms);
+  setShowConfirm(true);
+}
 
+function handleConfirmSeal() {
+  setShowConfirm(false);
+  if (pendingTerms) handleTermsSubmit(pendingTerms);
+}
+
+function handleCancelSeal() {
+  setShowConfirm(false);
+  setPendingTerms(null);
+}
   async function handleTermsSubmit(terms: object) {
   if (!address || !walletClient || !publicClient) {
     setSealError("Wallet not ready. Please wait a moment and try again.");
@@ -180,7 +195,7 @@ useEffect(() => {
             {isSealing ? (
               <p className="text-gray-400 text-sm">Sealing your terms to the blockchain... this takes about 20 seconds.</p>
             ) : (
-              <TermsForm onSubmit={handleTermsSubmit} />
+              <TermsForm onSubmit={handleTermsPreSubmit} />
             )}
           </div>
         )}
@@ -204,6 +219,31 @@ useEffect(() => {
           />
         )}
       </div>
+    {/* Confirmation dialog */}
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-6">
+          <div className="w-full max-w-sm rounded-xl bg-gray-900 border border-gray-700 p-6 flex flex-col gap-4">
+            <h2 className="text-white font-semibold text-lg">Seal your terms?</h2>
+            <p className="text-gray-400 text-sm leading-relaxed">
+              Your terms will be locked and encrypted to the blockchain. <span className="text-white">This cannot be undone.</span> Make sure everything looks right before confirming.
+            </p>
+            <div className="flex gap-3 mt-2">
+              <button
+                onClick={handleCancelSeal}
+                className="flex-1 rounded-lg border border-gray-700 px-4 py-2 text-sm font-semibold text-gray-300 hover:bg-gray-800 transition-colors"
+              >
+                Go Back
+              </button>
+              <button
+                onClick={handleConfirmSeal}
+                className="flex-1 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-950 hover:bg-gray-200 transition-colors"
+              >
+                Yes, Seal My Terms
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
