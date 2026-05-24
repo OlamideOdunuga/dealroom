@@ -65,10 +65,10 @@ export default function Home() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-950">
+    <div className="flex flex-col md:flex-row min-h-screen bg-gray-950">
 
       {/* Sidebar */}
-      <aside className="w-72 min-h-screen bg-gray-900 border-r border-gray-800 flex flex-col px-5 py-8 gap-8">
+      <aside className="w-full md:w-72 md:min-h-screen bg-gray-900 border-b md:border-b-0 md:border-r border-gray-800 flex flex-col px-5 py-6 gap-6">
         <div>
           <h1 className="text-xl font-bold text-white mb-1">Deal Room</h1>
           <p className="text-xs text-gray-500">Confidential creator collabs</p>
@@ -112,10 +112,27 @@ export default function Home() {
             </div>
           </div>
         )}
+        <div className="flex flex-col gap-3">
+          <p className="text-xs text-gray-500 uppercase tracking-wide">How it works</p>
+          <div className="flex flex-col gap-3">
+            <div className="flex gap-3 items-start">
+              <span className="text-xs font-bold text-gray-500 bg-gray-800 rounded-full w-5 h-5 flex items-center justify-center shrink-0 mt-0.5">1</span>
+              <p className="text-xs text-gray-400">Create a Deal Room and share the link with your collaborator</p>
+            </div>
+            <div className="flex gap-3 items-start">
+              <span className="text-xs font-bold text-gray-500 bg-gray-800 rounded-full w-5 h-5 flex items-center justify-center shrink-0 mt-0.5">2</span>
+              <p className="text-xs text-gray-400">Both parties privately submit their terms — encrypted on-chain via CDR</p>
+            </div>
+            <div className="flex gap-3 items-start">
+              <span className="text-xs font-bold text-gray-500 bg-gray-800 rounded-full w-5 h-5 flex items-center justify-center shrink-0 mt-0.5">3</span>
+              <p className="text-xs text-gray-400">Once both commit, reveal terms side by side and see where you align</p>
+            </div>
+          </div>
+        </div>
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 px-10 py-10">
+      <main className="flex-1 px-5 md:px-10 py-8">
         {!isConnected ? (
           <div className="flex flex-col items-center justify-center h-full gap-6 text-center">
             <h2 className="text-3xl font-bold text-white">Negotiate confidentially.</h2>
