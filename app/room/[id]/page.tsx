@@ -26,6 +26,8 @@ export default function RoomPage() {
   const [ownTerms, setOwnTerms] = useState<object | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [pendingTerms, setPendingTerms] = useState<object | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedId, setCopiedId] = useState(false);
 useEffect(() => {
   const stored = localStorage.getItem(`ownTerms_${id}`);
   console.log("[ownTerms] stored:", stored)
@@ -54,6 +56,18 @@ useEffect(() => {
     await joinRoom(id, address);
     fetchRoom();
   }
+function handleCopyLink() {
+  navigator.clipboard.writeText(window.location.href);
+  setCopiedLink(true);
+  setTimeout(() => setCopiedLink(false), 2000);
+}
+
+function handleCopyId() {
+  navigator.clipboard.writeText(id);
+  setCopiedId(true);
+  setTimeout(() => setCopiedId(false), 2000);
+}
+
 function handleTermsPreSubmit(terms: object) {
   setPendingTerms(terms);
   setShowConfirm(true);
@@ -152,16 +166,16 @@ function handleCancelSeal() {
             </div>
             <div className="flex gap-3">
               <button
-                onClick={() => navigator.clipboard.writeText(window.location.href)}
-                className="flex-1 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-950 hover:bg-gray-200"
+                onClick={handleCopyLink}
+                className="flex-1 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-950 hover:bg-gray-200 transition-colors"
               >
-                Copy Link
+                {copiedLink ? "Copied! ✓" : "Copy Link"}
               </button>
               <button
-                onClick={() => navigator.clipboard.writeText(id)}
-                className="flex-1 rounded-lg bg-gray-800 border border-gray-700 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700"
+                onClick={handleCopyId}
+                className="flex-1 rounded-lg bg-gray-800 border border-gray-700 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700 transition-colors"
               >
-                Copy Room ID
+                {copiedId ? "Copied! ✓" : "Copy Room ID"}
               </button>
             </div>
           </div>
