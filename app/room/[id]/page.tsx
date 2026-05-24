@@ -20,6 +20,7 @@ export default function RoomPage() {
   const router = useRouter();
   const [room, setRoom] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [isSealing, setIsSealing] = useState(false);
   const [sealError, setSealError] = useState<string | null>(null);
@@ -37,9 +38,13 @@ useEffect(() => {
   async function fetchRoom() {
     try {
       const data = await getRoom(id);
-      setRoom(data);
+      if (!data) {
+        setNotFound(true);
+      } else {
+        setRoom(data);
+      }
     } catch (e) {
-      // Error handled silently
+      setNotFound(true);
     } finally {
       setLoading(false);
     }
@@ -115,6 +120,28 @@ function handleCancelSeal() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-gray-950">
         <p className="text-gray-400">Loading room...</p>
+      </main>
+    );
+  }
+
+  if (notFound) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gray-950 px-6 text-center">
+        <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gray-800">
+          <svg className="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div className="flex flex-col gap-2">
+          <p className="text-white font-semibold text-lg">Room not found</p>
+          <p className="text-gray-500 text-sm max-w-xs">This deal room doesn't exist or may have expired. Double-check the link or ID.</p>
+        </div>
+        <button
+          onClick={() => router.push("/")}
+          className="rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-gray-950 hover:bg-gray-200 transition-colors"
+        >
+          Back to dashboard
+        </button>
       </main>
     );
   }
