@@ -21,6 +21,18 @@ export default function Home() {
   const [isCreating, setIsCreating] = useState(false);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loadingRooms, setLoadingRooms] = useState(false);
+  const [joinId, setJoinId] = useState("");
+  const [joinError, setJoinError] = useState("");
+
+  function handleJoinById() {
+    const trimmed = joinId.trim();
+    if (!trimmed) {
+      setJoinError("Please enter a Room ID.");
+      return;
+    }
+    setJoinError("");
+    router.push(`/room/${trimmed}`);
+  }
 
   useEffect(() => {
     if (!address) return;
@@ -85,6 +97,29 @@ export default function Home() {
           >
             {isCreating ? "Creating..." : "+ Create a Deal Room"}
           </button>
+        )}
+
+        {isConnected && (
+          <div className="flex flex-col gap-2">
+            <p className="text-xs text-gray-500 uppercase tracking-wide">Join by Room ID</p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={joinId}
+                onChange={(e) => { setJoinId(e.target.value); setJoinError(""); }}
+                onKeyDown={(e) => e.key === "Enter" && handleJoinById()}
+                placeholder="Paste Room ID"
+                className="flex-1 bg-gray-800 text-white text-sm rounded-lg px-3 py-2 outline-none border border-gray-700 focus:border-gray-500 transition-colors placeholder-gray-600"
+              />
+              <button
+                onClick={handleJoinById}
+                className="rounded-lg bg-gray-700 px-3 py-2 text-sm font-semibold text-white hover:bg-gray-600 transition-colors"
+              >
+                Go
+              </button>
+            </div>
+            {joinError && <p className="text-xs text-red-400">{joinError}</p>}
+          </div>
         )}
 
         {isConnected && (
