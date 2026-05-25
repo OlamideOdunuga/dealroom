@@ -124,14 +124,16 @@ const [filter, setFilter] = useState<"all" | "both_committed" | "both_joined" | 
 
         <ConnectButton label="Connect Wallet" />
 
-        <button
-          type="button"
-          onClick={handleAddNetwork}
-          className="rounded-lg border border-gray-700 px-4 py-2.5 text-xs font-medium text-gray-400 hover:text-white hover:border-gray-500 transition-colors text-left flex items-center gap-2"
-        >
-          <span className="text-base">🔗</span>
-          Add Story Aeneid Testnet
-        </button>
+        {!isConnected && (
+          <button
+            type="button"
+            onClick={handleAddNetwork}
+            className="rounded-lg border border-gray-700 px-4 py-2.5 text-xs font-medium text-gray-400 hover:text-white hover:border-gray-500 transition-colors text-left flex items-center gap-2"
+          >
+            <span className="text-base">🔗</span>
+            Add Story Aeneid Testnet
+          </button>
+        )}
 
         {isConnected && (
           <button
