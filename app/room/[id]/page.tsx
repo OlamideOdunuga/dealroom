@@ -31,7 +31,6 @@ export default function RoomPage() {
   const [copiedId, setCopiedId] = useState(false);
 useEffect(() => {
   const stored = localStorage.getItem(`ownTerms_${id}`);
-  console.log("[ownTerms] stored:", stored)
   if (stored) setOwnTerms(JSON.parse(stored));
 }, [id]);
 
