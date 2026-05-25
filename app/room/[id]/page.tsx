@@ -278,6 +278,9 @@ function handleCancelSeal() {
             walletClient={walletClient}
             publicClient={publicClient}
             ownTerms={ownTerms}
+            roomId={id}
+            creatorAddress={room.creator_address}
+            joinerAddress={room.joiner_address}
           />
         )}
       </div>

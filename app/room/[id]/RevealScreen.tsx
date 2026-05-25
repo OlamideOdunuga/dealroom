@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { revealTermsVault, VaultError } from "@/lib/vault";
+import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { DEAL_CONFIRMATION_ADDRESS, DEAL_CONFIRMATION_ABI } from "@/lib/contract";
 
 type Terms = {
   royaltySplit: number;
@@ -20,6 +22,9 @@ export default function RevealScreen({
   walletClient,
   publicClient,
   ownTerms,
+  roomId,
+  creatorAddress,
+  joinerAddress,
 }: {
   creatorVaultUuid: string;
   joinerVaultUuid: string;
@@ -29,6 +34,9 @@ export default function RevealScreen({
   walletClient: any;
   publicClient: any;
   ownTerms: object | null;
+  roomId: string;
+  creatorAddress: string;
+  joinerAddress: string;
 }) {
   const [revealed, setRevealed] = useState(false);
   const [isRevealing, setIsRevealing] = useState(false);
@@ -36,6 +44,27 @@ export default function RevealScreen({
   const [isRetryable, setIsRetryable] = useState(true);
   const [myTerms, setMyTerms] = useState<Terms | null>(null);
   const [theirTerms, setTheirTerms] = useState<Terms | null>(null);
+  const [confirmError, setConfirmError] = useState<string | null>(null);
+  const [confirmed, setConfirmed] = useState(false);
+
+  const { writeContractAsync, isPending: isConfirming } = useWriteContract();
+
+  async function handleConfirmDeal() {
+    setConfirmError(null);
+    try {
+      await writeContractAsync({
+        address: DEAL_CONFIRMATION_ADDRESS as `0x${string}`,
+        abi: DEAL_CONFIRMATION_ABI,
+        functionName: "confirmDeal",
+        args: [roomId, creatorAddress as `0x${string}`, joinerAddress as `0x${string}`],
+      });
+      setConfirmed(true);
+    } catch (e: any) {
+      setConfirmError(e?.message?.includes("Already confirmed")
+        ? "You have already signed this agreement."
+        : "Failed to confirm. Please try again.");
+    }
+  }
 
 async function handleReveal() {
   setIsRevealing(true);
@@ -256,6 +285,36 @@ async function handleReveal() {
           <p className="text-xs text-gray-500 mt-1">These are calculated midpoints. Both parties must agree to proceed.</p>
         </div>
       )}
+
+      <div className="flex flex-col items-center gap-3 mt-2">
+        {confirmed ? (
+          <div className="w-full rounded-lg bg-green-900/30 border border-green-800/50 px-4 py-3 text-center">
+            <p className="text-green-400 text-sm font-medium">✓ You have signed the agreement onchain</p>
+            <p className="text-green-600 text-xs mt-1">Waiting for the other party to sign</p>
+          </div>
+        ) : (
+          <button
+            onClick={handleConfirmDeal}
+            disabled={isConfirming}
+            className="w-full rounded-lg bg-green-600 px-6 py-3 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60 transition-colors"
+          >
+            {isConfirming ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Signing...
+              </span>
+            ) : (
+              "Sign Agreement Onchain"
+            )}
+          </button>
+        )}
+        {confirmError && (
+          <p className="text-red-400 text-xs text-center">{confirmError}</p>
+        )}
+      </div>
     </div>
   );
 }
