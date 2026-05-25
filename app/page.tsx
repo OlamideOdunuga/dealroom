@@ -27,6 +27,7 @@ const { data: ensName } = useEnsName({ address, chainId: 1 });
 const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 const [cancellingRoomId, setCancellingRoomId] = useState<string | null>(null);
 const [isCancelling, setIsCancelling] = useState(false);
+const [filter, setFilter] = useState<"all" | "both_committed" | "both_joined" | "cancelled" | "waiting">("all");
 
   function handleJoinById() {
     const trimmed = joinId.trim();
@@ -237,12 +238,37 @@ const [isCancelling, setIsCancelling] = useState(false);
                 </button>
               </div>
             ) : (
+              <>
+              <div className="flex gap-2 flex-wrap">
+                {[
+                  { key: "all", label: "All" },
+                  { key: "both_committed", label: "Completed" },
+                  { key: "both_joined", label: "In Progress" },
+                  { key: "waiting", label: "Waiting" },
+                  { key: "cancelled", label: "Cancelled" },
+                ].map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setFilter(tab.key as typeof filter)}
+                    className={`text-xs px-3 py-1.5 rounded-full font-medium transition-colors ${
+                      filter === tab.key
+                        ? "bg-white text-gray-950"
+                        : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
               <div className="flex flex-col gap-3">
-                {rooms.map((room) => {
+                {rooms
+                  .filter((r) => filter === "all" || r.status === filter)
+                  .map((room) => {
                   const s = statusLabel(room.status);
                   const isCreator = room.creator_address === address;
                   const isOlderThan24h = new Date().getTime() - new Date(room.created_at).getTime() > 24 * 60 * 60 * 1000;
-                  const canCancel = isCreator && room.status !== "both_committed" && isOlderThan24h;
+                  const canCancel = isCreator && room.status !== "both_committed" && room.status !== "cancelled" && isOlderThan24h;
 
                   return (
                     <div
@@ -275,6 +301,7 @@ const [isCancelling, setIsCancelling] = useState(false);
                   );
                 })}
               </div>
+              </>
             )}
           </div>
         )}
