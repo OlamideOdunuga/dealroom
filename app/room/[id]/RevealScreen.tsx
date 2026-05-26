@@ -362,7 +362,7 @@ async function handleReveal() {
           <div className="w-full rounded-lg bg-green-900/30 border border-green-800/50 px-4 py-3 text-center flex flex-col gap-1">
             <p className="text-green-400 text-sm font-medium">🔒 Deal sealed onchain by both parties</p>
             {txHash && (
-              
+              <a
                 href={`https://aeneid.storyscan.io/tx/${txHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
