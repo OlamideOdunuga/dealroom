@@ -46,6 +46,7 @@ export default function RevealScreen({
   const [theirTerms, setTheirTerms] = useState<Terms | null>(null);
   const [confirmError, setConfirmError] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState(false);
+  const [txHash, setTxHash] = useState<string | null>(null);
 
   const { writeContractAsync, isPending: isConfirming } = useWriteContract();
 
@@ -64,12 +65,13 @@ export default function RevealScreen({
   async function handleConfirmDeal() {
     setConfirmError(null);
     try {
-      await writeContractAsync({
+      const hash = await writeContractAsync({
         address: DEAL_CONFIRMATION_ADDRESS as `0x${string}`,
         abi: DEAL_CONFIRMATION_ABI,
         functionName: "confirmDeal",
         args: [roomId, creatorAddress as `0x${string}`, joinerAddress as `0x${string}`],
       });
+      setTxHash(hash);
       setConfirmed(true);
       await refetchStatus();
     } catch (e: any) {
@@ -357,8 +359,18 @@ async function handleReveal() {
         </div>
 
         {bothSigned ? (
-          <div className="w-full rounded-lg bg-green-900/30 border border-green-800/50 px-4 py-3 text-center">
+          <div className="w-full rounded-lg bg-green-900/30 border border-green-800/50 px-4 py-3 text-center flex flex-col gap-1">
             <p className="text-green-400 text-sm font-medium">🔒 Deal sealed onchain by both parties</p>
+            {txHash && (
+              
+                href={`https://aeneid.storyscan.io/tx/${txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-green-600 text-xs underline hover:text-green-400 transition-colors"
+              >
+                View transaction on Storyscan →
+              </a>
+            )}
           </div>
         ) : confirmed ? (
           <div className="w-full rounded-lg bg-green-900/30 border border-green-800/50 px-4 py-3 text-center">
