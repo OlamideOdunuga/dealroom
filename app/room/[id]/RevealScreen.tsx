@@ -437,7 +437,6 @@ async function handleReveal() {
           <p className="text-xs text-gray-500 mt-1">These are calculated midpoints. Both parties must agree to proceed.</p>
         </div>
       )}
-
        
     <button
         onClick={handleDownloadSummary}

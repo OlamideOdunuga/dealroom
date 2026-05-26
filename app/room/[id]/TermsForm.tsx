@@ -63,7 +63,8 @@ export default function TermsForm({
           type="date"
           value={timeline}
           onChange={(e) => setTimeline(e.target.value)}
-          className="bg-gray-800 text-white rounded-lg p-3 text-sm outline-none border border-gray-700 focus:border-gray-500 transition-colors"
+          className="bg-gray-800 text-white rounded-lg p-3 text-sm outline-none border border-gray-700 focus:border-gray-500 transition-colors w-full"
+          style={{ colorScheme: "dark" }}
         />
       </div>
 
