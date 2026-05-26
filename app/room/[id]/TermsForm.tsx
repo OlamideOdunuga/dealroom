@@ -59,47 +59,13 @@ export default function TermsForm({
 
       <div className="flex flex-col gap-2">
         <label className="text-sm text-gray-300 font-medium">Deliver by</label>
-        <div className="grid grid-cols-3 gap-2">
-          <select
-            value={timeline ? timeline.split("-")[2] : ""}
-            onChange={(e) => {
-              const parts = timeline ? timeline.split("-") : ["", "", ""];
-              setTimeline(`${parts[0] || new Date().getFullYear()}-${parts[1] || "01"}-${e.target.value}`);
-            }}
-            className="w-full min-h-[48px] bg-gray-800 text-white rounded-lg p-3 text-sm outline-none border border-gray-700 focus:border-gray-500 transition-colors"
-          >
-            <option value="">Day</option>
-            {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
-              <option key={d} value={String(d).padStart(2, "0")}>{d}</option>
-            ))}
-          </select>
-          <select
-            value={timeline ? timeline.split("-")[1] : ""}
-            onChange={(e) => {
-              const parts = timeline ? timeline.split("-") : ["", "", ""];
-              setTimeline(`${parts[0] || new Date().getFullYear()}-${e.target.value}-${parts[2] || "01"}`);
-            }}
-            className="flex-1 bg-gray-800 text-white rounded-lg p-3 text-sm outline-none border border-gray-700 focus:border-gray-500 transition-colors"
-          >
-            <option value="">Month</option>
-            {["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].map((m, i) => (
-              <option key={m} value={String(i + 1).padStart(2, "0")}>{m}</option>
-            ))}
-          </select>
-          <select
-            value={timeline ? timeline.split("-")[0] : ""}
-            onChange={(e) => {
-              const parts = timeline ? timeline.split("-") : ["", "", ""];
-              setTimeline(`${e.target.value}-${parts[1] || "01"}-${parts[2] || "01"}`);
-            }}
-            className="flex-1 bg-gray-800 text-white rounded-lg p-3 text-sm outline-none border border-gray-700 focus:border-gray-500 transition-colors"
-          >
-            <option value="">Year</option>
-            {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() + i).map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-        </div>
+        <input
+          type="date"
+          value={timeline}
+          min={new Date().toISOString().split("T")[0]}
+          onChange={(e) => setTimeline(e.target.value)}
+          className="w-full min-h-[48px] bg-gray-800 text-white rounded-lg p-3 text-sm outline-none border border-gray-700 focus:border-gray-500 transition-colors [color-scheme:dark]"
+        />
       </div>
 
       <div className="flex flex-col gap-2">
