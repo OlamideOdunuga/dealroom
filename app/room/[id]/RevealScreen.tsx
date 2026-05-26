@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { revealTermsVault, VaultError } from "@/lib/vault";
-import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
 import { DEAL_CONFIRMATION_ADDRESS, DEAL_CONFIRMATION_ABI } from "@/lib/contract";
 
 type Terms = {
@@ -49,6 +49,18 @@ export default function RevealScreen({
 
   const { writeContractAsync, isPending: isConfirming } = useWriteContract();
 
+  const { data: dealStatus, refetch: refetchStatus } = useReadContract({
+    address: DEAL_CONFIRMATION_ADDRESS as `0x${string}`,
+    abi: DEAL_CONFIRMATION_ABI,
+    functionName: "getDealStatus",
+    args: [roomId],
+    query: { enabled: revealed },
+  });
+
+  const creatorSigned = Array.isArray(dealStatus) ? Boolean(dealStatus[0]) : false;
+  const joinerSigned = Array.isArray(dealStatus) ? Boolean(dealStatus[1]) : false;
+  const bothSigned = creatorSigned && joinerSigned;
+
   async function handleConfirmDeal() {
     setConfirmError(null);
     try {
@@ -59,6 +71,7 @@ export default function RevealScreen({
         args: [roomId, creatorAddress as `0x${string}`, joinerAddress as `0x${string}`],
       });
       setConfirmed(true);
+      await refetchStatus();
     } catch (e: any) {
       setConfirmError(e?.message?.includes("Already confirmed")
         ? "You have already signed this agreement."
@@ -235,6 +248,49 @@ async function handleReveal() {
         <p className="text-white text-sm font-medium">{alignedCount} out of 5 fields aligned</p>
       </div>
 
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between bg-gray-800 rounded-lg px-4 py-3 text-xs text-gray-400">
+          <div className="flex items-center gap-2">
+            <span>{creatorSigned ? "✅" : "⏳"}</span>
+            <span>Creator</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span>Counterparty</span>
+            <span>{joinerSigned ? "✅" : "⏳"}</span>
+          </div>
+        </div>
+
+        {bothSigned ? (
+          <div className="w-full rounded-lg bg-green-900/30 border border-green-800/50 px-4 py-3 text-center">
+            <p className="text-green-400 text-sm font-medium">🔒 Deal sealed onchain by both parties</p>
+          </div>
+        ) : confirmed ? (
+          <div className="w-full rounded-lg bg-green-900/30 border border-green-800/50 px-4 py-3 text-center">
+            <p className="text-green-400 text-sm font-medium">✓ You have signed the agreement onchain</p>
+            <p className="text-green-600 text-xs mt-1">Waiting for the other party to sign</p>
+          </div>
+        ) : (
+          <button
+            onClick={handleConfirmDeal}
+            disabled={isConfirming}
+            className="w-full rounded-lg bg-green-600 px-6 py-3 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60 transition-colors"
+          >
+            {isConfirming ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Signing...
+              </span>
+            ) : (
+              "Sign Agreement Onchain"
+            )}
+          </button>
+        )}
+        {confirmError && <p className="text-red-400 text-xs text-center">{confirmError}</p>}
+      </div>
+
       {myTerms && theirTerms && alignedCount < 5 && (
         <div className="flex flex-col gap-3 bg-gray-800 rounded-lg p-4">
           <p className="text-xs text-gray-400 uppercase tracking-wide">Suggested Compromise</p>
@@ -286,35 +342,7 @@ async function handleReveal() {
         </div>
       )}
 
-      <div className="flex flex-col items-center gap-3 mt-2">
-        {confirmed ? (
-          <div className="w-full rounded-lg bg-green-900/30 border border-green-800/50 px-4 py-3 text-center">
-            <p className="text-green-400 text-sm font-medium">✓ You have signed the agreement onchain</p>
-            <p className="text-green-600 text-xs mt-1">Waiting for the other party to sign</p>
-          </div>
-        ) : (
-          <button
-            onClick={handleConfirmDeal}
-            disabled={isConfirming}
-            className="w-full rounded-lg bg-green-600 px-6 py-3 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60 transition-colors"
-          >
-            {isConfirming ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-                Signing...
-              </span>
-            ) : (
-              "Sign Agreement Onchain"
-            )}
-          </button>
-        )}
-        {confirmError && (
-          <p className="text-red-400 text-xs text-center">{confirmError}</p>
-        )}
-      </div>
+       
     </div>
   );
 }
