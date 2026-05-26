@@ -59,14 +59,14 @@ export default function TermsForm({
 
       <div className="flex flex-col gap-2">
         <label className="text-sm text-gray-300 font-medium">Deliver by</label>
-        <div className="flex gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <select
             value={timeline ? timeline.split("-")[2] : ""}
             onChange={(e) => {
               const parts = timeline ? timeline.split("-") : ["", "", ""];
               setTimeline(`${parts[0] || new Date().getFullYear()}-${parts[1] || "01"}-${e.target.value}`);
             }}
-            className="flex-1 bg-gray-800 text-white rounded-lg p-3 text-sm outline-none border border-gray-700 focus:border-gray-500 transition-colors"
+            className="w-full min-h-[48px] bg-gray-800 text-white rounded-lg p-3 text-sm outline-none border border-gray-700 focus:border-gray-500 transition-colors"
           >
             <option value="">Day</option>
             {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
