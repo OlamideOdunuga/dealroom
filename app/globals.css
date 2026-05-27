@@ -1,46 +1,69 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: #0D0C0A;
+  --color-foreground: #EDEAE4;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-:root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #0D0C0A;
+  color: #EDEAE4;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
-/* Teal glow utilities */
-.glow-teal {
-  box-shadow: 0 0 18px rgba(56, 189, 200, 0.35), 0 0 6px rgba(56, 189, 200, 0.2);
+/* Coral primary glow */
+.glow-coral {
+  box-shadow: 0 0 18px rgba(255, 122, 89, 0.35), 0 0 6px rgba(255, 122, 89, 0.2);
+}
+.glow-coral:hover {
+  box-shadow: 0 0 24px rgba(255, 122, 89, 0.5), 0 0 8px rgba(255, 122, 89, 0.3);
 }
 
-.glow-teal-hover {
+/* Status card glows */
+.glow-card-completed {
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
-
-.glow-teal-hover:hover {
-  box-shadow: 0 0 22px rgba(56, 189, 200, 0.45), 0 0 8px rgba(56, 189, 200, 0.25);
+.glow-card-completed:hover {
+  box-shadow: 0 0 16px rgba(95, 139, 122, 0.3), 0 0 4px rgba(95, 139, 122, 0.15);
+  border-color: rgba(95, 139, 122, 0.5);
 }
 
-.glow-teal-soft {
-  box-shadow: 0 0 12px rgba(56, 189, 200, 0.15), inset 0 0 8px rgba(56, 189, 200, 0.05);
-}
-
-.glow-card-hover {
+.glow-card-progress {
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
+.glow-card-progress:hover {
+  box-shadow: 0 0 16px rgba(93, 107, 154, 0.3), 0 0 4px rgba(93, 107, 154, 0.15);
+  border-color: rgba(93, 107, 154, 0.5);
+}
 
-.glow-card-hover:hover {
-  box-shadow: 0 0 16px rgba(56, 189, 200, 0.2), 0 0 4px rgba(56, 189, 200, 0.1);
-  border-color: rgba(56, 189, 200, 0.5);
+.glow-card-waiting {
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.glow-card-waiting:hover {
+  box-shadow: 0 0 16px rgba(168, 144, 96, 0.3), 0 0 4px rgba(168, 144, 96, 0.15);
+  border-color: rgba(168, 144, 96, 0.5);
+}
+
+.glow-card-cancelled {
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.glow-card-cancelled:hover {
+  box-shadow: 0 0 16px rgba(168, 97, 97, 0.3), 0 0 4px rgba(168, 97, 97, 0.15);
+  border-color: rgba(168, 97, 97, 0.5);
+}
+
+.glow-card-default {
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.glow-card-default:hover {
+  box-shadow: 0 0 16px rgba(255, 122, 89, 0.2), 0 0 4px rgba(255, 122, 89, 0.1);
+  border-color: rgba(255, 122, 89, 0.4);
+}
+
+/* Soft stats glow */
+.glow-stats {
+  box-shadow: inset 0 0 12px rgba(255, 122, 89, 0.06);
 }
