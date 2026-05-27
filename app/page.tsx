@@ -136,7 +136,7 @@ const [filter, setFilter] = useState<"all" | "both_committed" | "both_joined" | 
             </button>
             <p className="text-xs text-gray-500">
               Need testnet IP for gas?{" "}
-              <a href="https://faucet.story.foundation" target="_blank" rel="noopener noreferrer" className="text-gray-400 underline hover:text-white transition-colors">Get free tokens →</a>
+              <span className="text-gray-400">faucet.story.foundation</span>
             </p>
           </div>
         )}
