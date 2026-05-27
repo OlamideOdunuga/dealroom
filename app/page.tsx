@@ -17,17 +17,17 @@ type Room = {
 
 export default function Home() {
   const { isConnected, address } = useAccount();
-const { data: ensName } = useEnsName({ address, chainId: 1 });
+  const { data: ensName } = useEnsName({ address, chainId: 1 });
   const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loadingRooms, setLoadingRooms] = useState(false);
   const [joinId, setJoinId] = useState("");
   const [joinError, setJoinError] = useState("");
-const [showCancelConfirm, setShowCancelConfirm] = useState(false);
-const [cancellingRoomId, setCancellingRoomId] = useState<string | null>(null);
-const [isCancelling, setIsCancelling] = useState(false);
-const [filter, setFilter] = useState<"all" | "both_committed" | "both_joined" | "cancelled" | "waiting">("all");
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [cancellingRoomId, setCancellingRoomId] = useState<string | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [filter, setFilter] = useState<"all" | "both_committed" | "both_joined" | "cancelled" | "waiting">("all");
 
   function handleJoinById() {
     const trimmed = joinId.trim();
@@ -100,10 +100,11 @@ const [filter, setFilter] = useState<"all" | "both_committed" | "both_joined" | 
   const pendingDeals = rooms.filter(r => r.status !== "both_committed").length;
 
   function statusLabel(status: string) {
-    if (status === "waiting") return { text: "Waiting", color: "text-yellow-400 bg-yellow-900/30" };
-    if (status === "both_joined") return { text: "In progress", color: "text-blue-400 bg-blue-900/30" };
-    if (status === "both_committed") return { text: "Completed", color: "text-green-400 bg-green-900/30" };
-    return { text: status, color: "text-gray-400 bg-gray-800" };
+    if (status === "waiting") return { text: "Waiting", color: "text-yellow-400 bg-yellow-900/20" };
+    if (status === "both_joined") return { text: "In Progress", color: "text-blue-400 bg-blue-900/20" };
+    if (status === "both_committed") return { text: "Completed", color: "text-green-400 bg-green-900/20" };
+    if (status === "cancelled") return { text: "Cancelled", color: "text-red-400 bg-red-900/20" };
+    return { text: status, color: "text-[#B8AEA3] bg-[#24211D]" };
   }
 
   function formatDate(dateStr: string) {
@@ -113,13 +114,13 @@ const [filter, setFilter] = useState<"all" | "both_committed" | "both_joined" | 
   }
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-950">
+    <div className="flex flex-col md:flex-row min-h-screen bg-[#11110F]">
 
       {/* Sidebar */}
-      <aside className="w-full md:w-72 md:min-h-screen bg-gray-900 border-b md:border-b-0 md:border-r border-gray-800 flex flex-col px-5 py-6 gap-6">
+      <aside className="w-full md:w-72 md:min-h-screen bg-[#1A1916] border-b md:border-b-0 md:border-r border-[#332D27] flex flex-col px-5 py-6 gap-6">
         <div>
-          <h1 className="text-xl font-bold text-white mb-1">Deal Room</h1>
-          <p className="text-xs text-gray-500">Confidential creator collabs</p>
+          <h1 className="text-xl font-bold text-[#F3EEE7] mb-1">Deal Room</h1>
+          <p className="text-xs text-[#B8AEA3]">Confidential creator collabs</p>
         </div>
 
         <ConnectButton label="Connect Wallet" />
@@ -129,14 +130,14 @@ const [filter, setFilter] = useState<"all" | "both_committed" | "both_joined" | 
             <button
               type="button"
               onClick={handleAddNetwork}
-              className="self-start rounded-lg border border-gray-700 px-3 py-2 text-xs font-semibold text-gray-400 hover:text-white hover:border-gray-500 transition-colors flex items-center gap-2"
+              className="self-start rounded-lg border border-[#332D27] px-3 py-2 text-xs font-semibold text-[#B8AEA3] hover:text-[#F3EEE7] hover:border-[#C98B47] transition-colors flex items-center gap-2"
             >
               <span className="text-base">🔗</span>
               Add Story Aeneid Testnet
             </button>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-[#B8AEA3]">
               Need testnet IP for gas?{" "}
-              <span className="text-gray-400">faucet.story.foundation</span>
+              <span className="text-[#C98B47]">faucet.story.foundation</span>
             </p>
           </div>
         )}
@@ -146,7 +147,7 @@ const [filter, setFilter] = useState<"all" | "both_committed" | "both_joined" | 
             type="button"
             onClick={handleCreateRoom}
             disabled={isCreating}
-            className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-gray-950 hover:bg-gray-200 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+            className="rounded-lg bg-[#C98B47] px-4 py-3 text-sm font-semibold text-[#11110F] hover:bg-[#E0A15A] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
           >
             {isCreating ? "Creating..." : "+ Create a Deal Room"}
           </button>
@@ -154,7 +155,7 @@ const [filter, setFilter] = useState<"all" | "both_committed" | "both_joined" | 
 
         {isConnected && (
           <div className="flex flex-col gap-2">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Join by Room ID</p>
+            <p className="text-xs text-[#B8AEA3] uppercase tracking-wide">Join by Room ID</p>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -162,11 +163,11 @@ const [filter, setFilter] = useState<"all" | "both_committed" | "both_joined" | 
                 onChange={(e) => { setJoinId(e.target.value); setJoinError(""); }}
                 onKeyDown={(e) => e.key === "Enter" && handleJoinById()}
                 placeholder="Paste Room ID"
-                className="flex-1 bg-gray-800 text-white text-sm rounded-lg px-3 py-2 outline-none border border-gray-700 focus:border-gray-500 transition-colors placeholder-gray-600"
+                className="flex-1 bg-[#24211D] text-[#F3EEE7] text-sm rounded-lg px-3 py-2 outline-none border border-[#332D27] focus:border-[#C98B47] transition-colors placeholder-[#B8AEA3]"
               />
               <button
                 onClick={handleJoinById}
-                className="rounded-lg bg-gray-700 px-3 py-2 text-sm font-semibold text-white hover:bg-gray-600 transition-colors"
+                className="rounded-lg bg-[#24211D] border border-[#332D27] px-3 py-2 text-sm font-semibold text-[#F3EEE7] hover:border-[#C98B47] transition-colors"
               >
                 Go
               </button>
@@ -177,44 +178,45 @@ const [filter, setFilter] = useState<"all" | "both_committed" | "both_joined" | 
 
         {isConnected && (
           <div className="flex flex-col gap-3">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Your stats</p>
+            <p className="text-xs text-[#B8AEA3] uppercase tracking-wide">Your stats</p>
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-gray-800 rounded-lg px-3 py-3">
-                <p className="text-2xl font-bold text-white">{rooms.length}</p>
-                <p className="text-xs text-gray-400 mt-1">Total deals</p>
+              <div className="bg-[#24211D] rounded-lg px-3 py-3 border border-[#332D27]">
+                <p className="text-2xl font-bold text-[#F3EEE7]">{rooms.length}</p>
+                <p className="text-xs text-[#B8AEA3] mt-1">Total deals</p>
               </div>
-              <div className="bg-gray-800 rounded-lg px-3 py-3">
-                <p className="text-2xl font-bold text-green-400">{completedDeals}</p>
-                <p className="text-xs text-gray-400 mt-1">Completed</p>
+              <div className="bg-[#24211D] rounded-lg px-3 py-3 border border-[#332D27]">
+                <p className="text-2xl font-bold text-[#C98B47]">{completedDeals}</p>
+                <p className="text-xs text-[#B8AEA3] mt-1">Completed</p>
               </div>
-              <div className="bg-gray-800 rounded-lg px-3 py-3">
+              <div className="bg-[#24211D] rounded-lg px-3 py-3 border border-[#332D27]">
                 <p className="text-2xl font-bold text-yellow-400">{pendingDeals}</p>
-                <p className="text-xs text-gray-400 mt-1">Pending</p>
+                <p className="text-xs text-[#B8AEA3] mt-1">Pending</p>
               </div>
-              <div className="bg-gray-800 rounded-lg px-3 py-3">
-                <p className="text-2xl font-bold text-blue-400">
+              <div className="bg-[#24211D] rounded-lg px-3 py-3 border border-[#332D27]">
+                <p className="text-2xl font-bold text-[#C98B47]">
                   {rooms.filter(r => r.creator_address === address).length}
                 </p>
-                <p className="text-xs text-gray-400 mt-1">Created</p>
+                <p className="text-xs text-[#B8AEA3] mt-1">Created</p>
               </div>
             </div>
           </div>
         )}
+
         <div className="flex flex-col gap-3">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">How it works</p>
+          <p className="text-xs text-[#B8AEA3] uppercase tracking-wide">How it works</p>
           <div className="flex flex-col gap-3">
-            <div className="flex gap-3 items-start">
-              <span className="text-xs font-bold text-gray-500 bg-gray-800 rounded-full w-5 h-5 flex items-center justify-center shrink-0 mt-0.5">1</span>
-              <p className="text-xs text-gray-400">Create a Deal Room and share the link with your collaborator</p>
-            </div>
-            <div className="flex gap-3 items-start">
-              <span className="text-xs font-bold text-gray-500 bg-gray-800 rounded-full w-5 h-5 flex items-center justify-center shrink-0 mt-0.5">2</span>
-              <p className="text-xs text-gray-400">Both parties privately submit their terms, encrypted on-chain via CDR</p>
-            </div>
-            <div className="flex gap-3 items-start">
-              <span className="text-xs font-bold text-gray-500 bg-gray-800 rounded-full w-5 h-5 flex items-center justify-center shrink-0 mt-0.5">3</span>
-              <p className="text-xs text-gray-400">Once both commit, reveal terms side by side and see where you align</p>
-            </div>
+            {[
+              "Create a Deal Room and share the link with your collaborator",
+              "Both parties privately submit their terms, encrypted on-chain via CDR",
+              "Once both commit, reveal terms side by side and see where you align",
+            ].map((step, i) => (
+              <div key={i} className="flex gap-3 items-start">
+                <span className="text-xs font-bold text-[#C98B47] bg-[#24211D] border border-[#332D27] rounded-full w-5 h-5 flex items-center justify-center shrink-0 mt-0.5">
+                  {i + 1}
+                </span>
+                <p className="text-xs text-[#B8AEA3]">{step}</p>
+              </div>
+            ))}
           </div>
         </div>
       </aside>
@@ -223,18 +225,18 @@ const [filter, setFilter] = useState<"all" | "both_committed" | "both_joined" | 
       <main className="flex-1 px-5 md:px-10 py-8">
         {!isConnected ? (
           <div className="flex flex-col items-center justify-center h-full gap-6 text-center">
-            <h2 className="text-3xl font-bold text-white">Negotiate confidentially.</h2>
-            <p className="text-gray-400 max-w-md">
+            <h2 className="text-3xl font-bold text-[#F3EEE7]">Negotiate confidentially.</h2>
+            <p className="text-[#B8AEA3] max-w-md">
               Neither party sees the other&apos;s terms until both commit. Connect your wallet to get started.
             </p>
           </div>
         ) : (
           <div className="flex flex-col gap-8">
             <div>
-              <h2 className="text-xl font-bold text-white mb-1">
+              <h2 className="text-xl font-bold text-[#F3EEE7] mb-1">
                 Welcome back{address ? `, ${ensName ?? `${address.slice(0, 6)}...${address.slice(-4)}`}` : ""}
               </h2>
-              <p className="text-gray-400 text-sm">Here are all the deal rooms you&apos;ve been part of.</p>
+              <p className="text-[#B8AEA3] text-sm">Here are all the deal rooms you&apos;ve been part of.</p>
             </div>
 
             {loadingRooms ? (
@@ -242,115 +244,116 @@ const [filter, setFilter] = useState<"all" | "both_committed" | "both_joined" | 
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between bg-gray-900 border border-gray-800 rounded-xl px-5 py-4 animate-pulse"
+                    className="flex items-center justify-between bg-[#1A1916] border border-[#332D27] rounded-xl px-5 py-4 animate-pulse"
                   >
                     <div className="flex flex-col gap-2">
-                      <div className="h-3.5 w-24 bg-gray-700 rounded" />
-                      <div className="h-3 w-36 bg-gray-800 rounded" />
+                      <div className="h-3.5 w-24 bg-[#24211D] rounded" />
+                      <div className="h-3 w-36 bg-[#24211D] rounded" />
                     </div>
-                    <div className="h-6 w-20 bg-gray-700 rounded-full" />
+                    <div className="h-6 w-20 bg-[#24211D] rounded-full" />
                   </div>
                 ))}
               </div>
             ) : rooms.length === 0 ? (
-              <div className="flex flex-col items-center justify-center gap-6 py-20 border border-dashed border-gray-700 rounded-xl px-6 text-center">
-                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gray-800">
-                  <svg className="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="flex flex-col items-center justify-center gap-6 py-20 border border-dashed border-[#332D27] rounded-xl px-6 text-center">
+                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-[#24211D] border border-[#332D27]">
+                  <svg className="w-8 h-8 text-[#C98B47]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <p className="text-white font-medium">No deals yet</p>
-                  <p className="text-gray-500 text-sm max-w-xs">Create your first confidential deal room and share the link with your collaborator</p>
+                  <p className="text-[#F3EEE7] font-medium">No deals yet</p>
+                  <p className="text-[#B8AEA3] text-sm max-w-xs">Create your first confidential deal room and share the link with your collaborator</p>
                 </div>
                 <button
                   onClick={handleCreateRoom}
                   disabled={isCreating}
-                  className="rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-gray-950 hover:bg-gray-200 disabled:opacity-60"
+                  className="rounded-lg bg-[#C98B47] px-5 py-2.5 text-sm font-semibold text-[#11110F] hover:bg-[#E0A15A] disabled:opacity-60 transition-colors"
                 >
                   {isCreating ? "Creating..." : "Create your first Deal Room"}
                 </button>
               </div>
             ) : (
               <>
-              <div className="flex gap-2 flex-wrap">
-                {[
-                  { key: "all", label: "All" },
-                  { key: "both_committed", label: "Completed" },
-                  { key: "both_joined", label: "In Progress" },
-                  { key: "waiting", label: "Waiting" },
-                  { key: "cancelled", label: "Cancelled" },
-                ].map((tab) => (
-                  <button
-                    key={tab.key}
-                    onClick={() => setFilter(tab.key as typeof filter)}
-                    className={`text-xs px-3 py-1.5 rounded-full font-medium transition-colors ${
-                      filter === tab.key
-                        ? "bg-white text-gray-950"
-                        : "bg-gray-800 text-gray-400 hover:bg-gray-700"
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-
-              <div className="flex flex-col gap-3">
-                {rooms
-                  .filter((r) => filter === "all" || r.status === filter)
-                  .map((room) => {
-                  const s = statusLabel(room.status);
-                  const isCreator = room.creator_address === address;
-                  const isOlderThan24h = new Date().getTime() - new Date(room.created_at).getTime() > 24 * 60 * 60 * 1000;
-                  const canCancel = isCreator && room.status !== "both_committed" && room.status !== "cancelled" && isOlderThan24h;
-
-                  return (
-                    <div
-                      key={room.id}
-                      onClick={() => router.push(`/room/${room.id}`)}
-                      className="flex items-center justify-between bg-gray-900 border border-gray-800 rounded-xl px-5 py-4 cursor-pointer hover:border-gray-600 transition-colors"
+                <div className="flex gap-2 flex-wrap">
+                  {[
+                    { key: "all", label: "All" },
+                    { key: "both_committed", label: "Completed" },
+                    { key: "both_joined", label: "In Progress" },
+                    { key: "waiting", label: "Waiting" },
+                    { key: "cancelled", label: "Cancelled" },
+                  ].map((tab) => (
+                    <button
+                      key={tab.key}
+                      onClick={() => setFilter(tab.key as typeof filter)}
+                      className={`text-xs px-3 py-1.5 rounded-full font-medium transition-colors ${
+                        filter === tab.key
+                          ? "bg-[#C98B47] text-[#11110F]"
+                          : "bg-[#24211D] text-[#B8AEA3] border border-[#332D27] hover:border-[#C98B47] hover:text-[#F3EEE7]"
+                      }`}
                     >
-                      <div className="flex flex-col gap-1">
-                        <p className="text-white text-sm font-medium">Room #{room.id}</p>
-                        <p className="text-gray-500 text-xs">{formatDate(room.created_at)} · {isCreator ? "You created" : "You joined"}</p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className={`text-xs font-medium px-3 py-1 rounded-full ${s.color}`}>
-                          {s.text}
-                        </span>
-                        {canCancel && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setCancellingRoomId(room.id);
-                              setShowCancelConfirm(true);
-                            }}
-                            className="text-xs text-red-400 hover:text-red-300 transition-colors"
-                          >
-                            Cancel
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  {rooms
+                    .filter((r) => filter === "all" || r.status === filter)
+                    .map((room) => {
+                      const s = statusLabel(room.status);
+                      const isCreator = room.creator_address === address;
+                      const isOlderThan24h = new Date().getTime() - new Date(room.created_at).getTime() > 24 * 60 * 60 * 1000;
+                      const canCancel = isCreator && room.status !== "both_committed" && room.status !== "cancelled" && isOlderThan24h;
+
+                      return (
+                        <div
+                          key={room.id}
+                          onClick={() => router.push(`/room/${room.id}`)}
+                          className="flex items-center justify-between bg-[#1A1916] border border-[#332D27] rounded-xl px-5 py-4 cursor-pointer hover:border-[#C98B47] transition-colors"
+                        >
+                          <div className="flex flex-col gap-1">
+                            <p className="text-[#F3EEE7] text-sm font-medium">Room #{room.id}</p>
+                            <p className="text-[#B8AEA3] text-xs">{formatDate(room.created_at)} · {isCreator ? "You created" : "You joined"}</p>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className={`text-xs font-medium px-3 py-1 rounded-full ${s.color}`}>
+                              {s.text}
+                            </span>
+                            {canCancel && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setCancellingRoomId(room.id);
+                                  setShowCancelConfirm(true);
+                                }}
+                                className="text-xs text-red-400 hover:text-red-300 transition-colors"
+                              >
+                                Cancel
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
               </>
             )}
           </div>
         )}
       </main>
-    {showCancelConfirm && (
+
+      {showCancelConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-6">
-          <div className="w-full max-w-sm rounded-xl bg-gray-900 border border-gray-700 p-6 flex flex-col gap-4">
-            <h2 className="text-white font-semibold text-lg">Cancel this deal room?</h2>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              This room will be closed and removed from your dashboard. <span className="text-white">This cannot be undone.</span>
+          <div className="w-full max-w-sm rounded-xl bg-[#1A1916] border border-[#332D27] p-6 flex flex-col gap-4">
+            <h2 className="text-[#F3EEE7] font-semibold text-lg">Cancel this deal room?</h2>
+            <p className="text-[#B8AEA3] text-sm leading-relaxed">
+              This room will be closed and removed from your dashboard. <span className="text-[#F3EEE7]">This cannot be undone.</span>
             </p>
             <div className="flex gap-3 mt-2">
               <button
                 onClick={() => { setShowCancelConfirm(false); setCancellingRoomId(null); }}
-                className="flex-1 rounded-lg border border-gray-700 px-4 py-2 text-sm font-semibold text-gray-300 hover:bg-gray-800 transition-colors"
+                className="flex-1 rounded-lg border border-[#332D27] px-4 py-2 text-sm font-semibold text-[#B8AEA3] hover:border-[#C98B47] hover:text-[#F3EEE7] transition-colors"
               >
                 Keep Room
               </button>
