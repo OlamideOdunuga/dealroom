@@ -9,6 +9,8 @@ export type Room = {
   creator_encrypted_data: string | null;
   joiner_encrypted_data: string | null;
   status: string;
+  creator_terms: string | null;
+  joiner_terms: string | null;
 };
 
 function generateRoomId(): string {
@@ -70,12 +72,13 @@ export async function updateVault(
   roomId: string,
   role: "creator" | "joiner",
   vaultUuid: string,
-  encryptedData: string
+  encryptedData: string,
+  terms: string
 ): Promise<Room> {
   const vaultUpdate =
     role === "creator"
-      ? { creator_vault_uuid: vaultUuid, creator_encrypted_data: encryptedData }
-      : { joiner_vault_uuid: vaultUuid, joiner_encrypted_data: encryptedData };
+      ? { creator_vault_uuid: vaultUuid, creator_encrypted_data: encryptedData, creator_terms: terms }
+      : { joiner_vault_uuid: vaultUuid, joiner_encrypted_data: encryptedData, joiner_terms: terms };
 
   const { data, error } = await supabase
     .from("rooms")

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { revealTermsVault, VaultError } from "@/lib/vault";
 import { useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
 import { DEAL_CONFIRMATION_ADDRESS, DEAL_CONFIRMATION_ABI } from "@/lib/contract";
+import { supabase } from "@/lib/supabase";
 
 type Terms = {
   royaltySplit: number;
@@ -52,6 +53,28 @@ export default function RevealScreen({
     const stored = localStorage.getItem(`txHash_${roomId}`);
     if (stored) setTxHash(stored);
   }, [roomId]);
+
+  useEffect(() => {
+    if (ownTerms) return;
+    async function fetchOwnTerms() {
+      try {
+        const { data } = await supabase
+          .from("rooms")
+          .select("creator_terms, joiner_terms")
+          .eq("id", roomId)
+          .single();
+        if (!data) return;
+        const terms = userRole === "creator" ? data.creator_terms : data.joiner_terms;
+        if (terms) {
+          const parsed = JSON.parse(terms);
+          localStorage.setItem(`ownTerms_${roomId}`, terms);
+        }
+      } catch {
+        // silent
+      }
+    }
+    fetchOwnTerms();
+  }, [roomId, ownTerms, userRole]);
 
   useEffect(() => {
     if (txHash) return;

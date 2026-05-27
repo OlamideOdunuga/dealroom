@@ -100,7 +100,7 @@ function handleCancelSeal() {
    const counterparty = (isCreator ? room.joiner_address : room.creator_address) as `0x${string}`;
     const { uuid, encryptedData } = await sealTermsVault(terms, walletClient, publicClient, counterparty);
     const role = isCreator ? "creator" : "joiner";
-    await updateVault(id, role, uuid, encryptedData);
+    await updateVault(id, role, uuid, encryptedData, JSON.stringify(terms));
     setOwnTerms(terms);
     localStorage.setItem(`ownTerms_${id}`, JSON.stringify(terms));
     setHasSubmitted(true);
