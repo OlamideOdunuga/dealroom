@@ -16,10 +16,10 @@ body {
 
 /* Coral primary glow */
 .glow-coral {
-  box-shadow: 0 0 18px rgba(255, 122, 89, 0.35), 0 0 6px rgba(255, 122, 89, 0.2);
+  box-shadow: 0 0 28px rgba(255, 122, 89, 0.55), 0 0 10px rgba(255, 122, 89, 0.35);
 }
 .glow-coral:hover {
-  box-shadow: 0 0 24px rgba(255, 122, 89, 0.5), 0 0 8px rgba(255, 122, 89, 0.3);
+  box-shadow: 0 0 38px rgba(255, 122, 89, 0.7), 0 0 14px rgba(255, 122, 89, 0.5);
 }
 
 /* Status card glows */
@@ -27,33 +27,34 @@ body {
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 .glow-card-completed:hover {
-  box-shadow: 0 0 16px rgba(95, 139, 122, 0.3), 0 0 4px rgba(95, 139, 122, 0.15);
-  border-color: rgba(95, 139, 122, 0.5);
+  box-shadow: 0 0 24px rgba(95, 139, 122, 0.5), 0 0 8px rgba(95, 139, 122, 0.3);
+  border-color: rgba(95, 139, 122, 0.7);
 }
 
 .glow-card-progress {
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 .glow-card-progress:hover {
-  box-shadow: 0 0 16px rgba(93, 107, 154, 0.3), 0 0 4px rgba(93, 107, 154, 0.15);
-  border-color: rgba(93, 107, 154, 0.5);
+  box-shadow: 0 0 24px rgba(93, 107, 154, 0.5), 0 0 8px rgba(93, 107, 154, 0.3);
+  border-color: rgba(93, 107, 154, 0.7);
 }
 
 .glow-card-waiting {
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 .glow-card-waiting:hover {
-  box-shadow: 0 0 16px rgba(168, 144, 96, 0.3), 0 0 4px rgba(168, 144, 96, 0.15);
-  border-color: rgba(168, 144, 96, 0.5);
+  box-shadow: 0 0 24px rgba(168, 144, 96, 0.5), 0 0 8px rgba(168, 144, 96, 0.3);
+  border-color: rgba(168, 144, 96, 0.7);
 }
 
 .glow-card-cancelled {
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 .glow-card-cancelled:hover {
-  box-shadow: 0 0 16px rgba(168, 97, 97, 0.3), 0 0 4px rgba(168, 97, 97, 0.15);
-  border-color: rgba(168, 97, 97, 0.5);
+  box-shadow: 0 0 24px rgba(168, 97, 97, 0.5), 0 0 8px rgba(168, 97, 97, 0.3);
+  border-color: rgba(168, 97, 97, 0.7);
 }
+
 
 .glow-card-default {
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
@@ -65,5 +66,5 @@ body {
 
 /* Soft stats glow */
 .glow-stats {
-  box-shadow: inset 0 0 12px rgba(255, 122, 89, 0.06);
+  box-shadow: inset 0 0 16px rgba(255, 122, 89, 0.12), 0 0 8px rgba(255, 122, 89, 0.08);
 }
