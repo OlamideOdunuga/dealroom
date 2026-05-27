@@ -25,6 +25,7 @@ export default function RoomPage() {
   const [isSealing, setIsSealing] = useState(false);
   const [sealError, setSealError] = useState<string | null>(null);
   const [ownTerms, setOwnTerms] = useState<object | null>(null);
+  const [ownTermsReady, setOwnTermsReady] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [pendingTerms, setPendingTerms] = useState<object | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -32,6 +33,7 @@ export default function RoomPage() {
 useEffect(() => {
   const stored = localStorage.getItem(`ownTerms_${id}`);
   if (stored) setOwnTerms(JSON.parse(stored));
+  setOwnTermsReady(true);
 }, [id]);
 
   async function fetchRoom() {
@@ -268,7 +270,7 @@ function handleCancelSeal() {
         )}
 
        {/* Both committed — reveal screen */}
-       {bothCommitted && (
+       {bothCommitted && ownTermsReady && (
           <RevealScreen
             creatorVaultUuid={room.creator_vault_uuid}
             joinerVaultUuid={room.joiner_vault_uuid}
