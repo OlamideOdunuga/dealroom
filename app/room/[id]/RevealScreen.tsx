@@ -53,6 +53,32 @@ export default function RevealScreen({
     if (stored) setTxHash(stored);
   }, [roomId]);
 
+  useEffect(() => {
+    if (txHash) return;
+    async function fetchTxFromStoryscan() {
+      try {
+        const res = await fetch(
+          `https://aeneid.storyscan.io/api/v2/addresses/${DEAL_CONFIRMATION_ADDRESS}/transactions?filter=to`
+        );
+        const json = await res.json();
+        if (!json.items) return;
+        const match = json.items.find((tx: any) => {
+          if (!tx.decoded_input?.parameters) return false;
+          return tx.decoded_input.parameters.some(
+            (p: any) => p.name === "roomId" && p.value === roomId
+          );
+        });
+        if (match) {
+          setTxHash(match.hash);
+          localStorage.setItem(`txHash_${roomId}`, match.hash);
+        }
+      } catch {
+        // silent
+      }
+    }
+    fetchTxFromStoryscan();
+  }, [roomId, txHash]);
+
   const { writeContractAsync, isPending: isConfirming } = useWriteContract();
 
   const { data: dealStatus, refetch: refetchStatus } = useReadContract({
