@@ -125,14 +125,20 @@ const [filter, setFilter] = useState<"all" | "both_committed" | "both_joined" | 
         <ConnectButton label="Connect Wallet" />
 
         {!isConnected && (
-          <button
-            type="button"
-            onClick={handleAddNetwork}
-            className="self-start rounded-lg border border-gray-700 px-3 py-2 text-xs font-semibold text-gray-400 hover:text-white hover:border-gray-500 transition-colors flex items-center gap-2"
-          >
-            <span className="text-base">🔗</span>
-            Add Story Aeneid Testnet
-          </button>
+          <div className="flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={handleAddNetwork}
+              className="self-start rounded-lg border border-gray-700 px-3 py-2 text-xs font-semibold text-gray-400 hover:text-white hover:border-gray-500 transition-colors flex items-center gap-2"
+            >
+              <span className="text-base">🔗</span>
+              Add Story Aeneid Testnet
+            </button>
+            <p className="text-xs text-gray-500">
+              Need testnet IP for gas?{" "}
+              <a href="https://faucet.story.foundation" target="_blank" rel="noopener noreferrer" className="text-gray-400 underline hover:text-white transition-colors">Get free tokens →</a>
+            </p>
+          </div>
         )}
 
         {isConnected && (
