@@ -1,41 +1,39 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-base: #11110F;
-  --color-surface: #1A1916;
-  --color-elevated: #24211D;
-  --color-accent: #C98B47;
-  --color-accent-hover: #E0A15A;
-  --color-text-primary: #F3EEE7;
-  --color-text-secondary: #B8AEA3;
-  --color-border: #332D27;
-  --color-background: #11110F;
-  --color-foreground: #F3EEE7;
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 body {
-  background-color: #11110F;
-  color: #F3EEE7;
-  font-family: var(--font-sans);
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Amber glow utilities */
-.glow-amber {
-  box-shadow: 0 0 18px rgba(201, 139, 71, 0.35), 0 0 6px rgba(201, 139, 71, 0.2);
+/* Teal glow utilities */
+.glow-teal {
+  box-shadow: 0 0 18px rgba(56, 189, 200, 0.35), 0 0 6px rgba(56, 189, 200, 0.2);
 }
 
-.glow-amber-hover {
+.glow-teal-hover {
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.glow-amber-hover:hover {
-  box-shadow: 0 0 22px rgba(201, 139, 71, 0.45), 0 0 8px rgba(201, 139, 71, 0.25);
+.glow-teal-hover:hover {
+  box-shadow: 0 0 22px rgba(56, 189, 200, 0.45), 0 0 8px rgba(56, 189, 200, 0.25);
 }
 
-.glow-amber-soft {
-  box-shadow: 0 0 12px rgba(201, 139, 71, 0.15), inset 0 0 8px rgba(201, 139, 71, 0.05);
+.glow-teal-soft {
+  box-shadow: 0 0 12px rgba(56, 189, 200, 0.15), inset 0 0 8px rgba(56, 189, 200, 0.05);
 }
 
 .glow-card-hover {
@@ -43,6 +41,6 @@ body {
 }
 
 .glow-card-hover:hover {
-  box-shadow: 0 0 16px rgba(201, 139, 71, 0.2), 0 0 4px rgba(201, 139, 71, 0.1);
-  border-color: #C98B47;
+  box-shadow: 0 0 16px rgba(56, 189, 200, 0.2), 0 0 4px rgba(56, 189, 200, 0.1);
+  border-color: rgba(56, 189, 200, 0.5);
 }
