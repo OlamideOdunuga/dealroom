@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { revealTermsVault, VaultError } from "@/lib/vault";
 import { useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
 import { DEAL_CONFIRMATION_ADDRESS, DEAL_CONFIRMATION_ABI } from "@/lib/contract";
@@ -48,6 +48,11 @@ export default function RevealScreen({
   const [confirmed, setConfirmed] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
 
+  useEffect(() => {
+    const stored = localStorage.getItem(`txHash_${roomId}`);
+    if (stored) setTxHash(stored);
+  }, [roomId]);
+
   const { writeContractAsync, isPending: isConfirming } = useWriteContract();
 
   const { data: dealStatus, refetch: refetchStatus } = useReadContract({
@@ -72,6 +77,7 @@ export default function RevealScreen({
         args: [roomId, creatorAddress as `0x${string}`, joinerAddress as `0x${string}`],
       });
       setTxHash(hash);
+      localStorage.setItem(`txHash_${roomId}`, hash);
       setConfirmed(true);
       await refetchStatus();
     } catch (e: any) {
@@ -94,7 +100,9 @@ async function handleReveal() {
         publicClient
       ) as Terms;
       setTheirTerms(joinerTerms);
-      setMyTerms(ownTerms as Terms);
+      const storedTerms = localStorage.getItem(`ownTerms_${roomId}`);
+const localTerms = storedTerms ? JSON.parse(storedTerms) : null;
+setMyTerms((ownTerms || localTerms) as Terms);
     } else {
       // Joiner can only read creator's vault
       const creatorTerms = await revealTermsVault(
@@ -104,7 +112,9 @@ async function handleReveal() {
         publicClient
       ) as Terms;
       setTheirTerms(creatorTerms);
-      setMyTerms(ownTerms as Terms);
+      const storedTerms = localStorage.getItem(`ownTerms_${roomId}`);
+const localTerms = storedTerms ? JSON.parse(storedTerms) : null;
+setMyTerms((ownTerms || localTerms) as Terms);
     }
     setRevealed(true);
   } catch (e) {
