@@ -146,8 +146,7 @@ const [filter, setFilter] = useState<"all" | "both_committed" | "both_joined" | 
             type="button"
             onClick={handleCreateRoom}
             disabled={isCreating}
-            className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-gray-950 hover:bg-gray-200 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-          >
+            className="rounded-lg bg-white px-4 py-3 text-sm font-semibold text-gray-950 hover:bg-gray-200 disabled:opacity-60 disabled:cursor-not-allowed transition-colors glow-teal glow-teal-hover"          >
             {isCreating ? "Creating..." : "+ Create a Deal Room"}
           </button>
         )}
@@ -179,19 +178,19 @@ const [filter, setFilter] = useState<"all" | "both_committed" | "both_joined" | 
           <div className="flex flex-col gap-3">
             <p className="text-xs text-gray-500 uppercase tracking-wide">Your stats</p>
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-gray-800 rounded-lg px-3 py-3">
+              <div className="bg-gray-800 rounded-lg px-3 py-3 glow-teal-soft">
                 <p className="text-2xl font-bold text-white">{rooms.length}</p>
                 <p className="text-xs text-gray-400 mt-1">Total deals</p>
               </div>
-              <div className="bg-gray-800 rounded-lg px-3 py-3">
+              <div className="bg-gray-800 rounded-lg px-3 py-3 glow-teal-soft">
                 <p className="text-2xl font-bold text-green-400">{completedDeals}</p>
                 <p className="text-xs text-gray-400 mt-1">Completed</p>
               </div>
-              <div className="bg-gray-800 rounded-lg px-3 py-3">
+              <div className="bg-gray-800 rounded-lg px-3 py-3 glow-teal-soft">
                 <p className="text-2xl font-bold text-yellow-400">{pendingDeals}</p>
                 <p className="text-xs text-gray-400 mt-1">Pending</p>
               </div>
-              <div className="bg-gray-800 rounded-lg px-3 py-3">
+              <div className="bg-gray-800 rounded-lg px-3 py-3 glow-teal-soft">
                 <p className="text-2xl font-bold text-blue-400">
                   {rooms.filter(r => r.creator_address === address).length}
                 </p>
@@ -266,7 +265,7 @@ const [filter, setFilter] = useState<"all" | "both_committed" | "both_joined" | 
                 <button
                   onClick={handleCreateRoom}
                   disabled={isCreating}
-                  className="rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-gray-950 hover:bg-gray-200 disabled:opacity-60"
+                  className="rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-gray-950 hover:bg-gray-200 disabled:opacity-60 glow-teal glow-teal-hover"
                 >
                   {isCreating ? "Creating..." : "Create your first Deal Room"}
                 </button>
@@ -286,7 +285,7 @@ const [filter, setFilter] = useState<"all" | "both_committed" | "both_joined" | 
                     onClick={() => setFilter(tab.key as typeof filter)}
                     className={`text-xs px-3 py-1.5 rounded-full font-medium transition-colors ${
                       filter === tab.key
-                        ? "bg-white text-gray-950"
+                        ? "bg-white text-gray-950 glow-teal"
                         : "bg-gray-800 text-gray-400 hover:bg-gray-700"
                     }`}
                   >
@@ -308,7 +307,7 @@ const [filter, setFilter] = useState<"all" | "both_committed" | "both_joined" | 
                     <div
                       key={room.id}
                       onClick={() => router.push(`/room/${room.id}`)}
-                      className="flex items-center justify-between bg-gray-900 border border-gray-800 rounded-xl px-5 py-4 cursor-pointer hover:border-gray-600 transition-colors"
+                      className="flex items-center justify-between bg-gray-900 border border-gray-800 rounded-xl px-5 py-4 cursor-pointer glow-card-hover"
                     >
                       <div className="flex flex-col gap-1">
                         <p className="text-white text-sm font-medium">Room #{room.id}</p>
