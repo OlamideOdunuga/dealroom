@@ -147,7 +147,7 @@ export default function Home() {
             type="button"
             onClick={handleCreateRoom}
             disabled={isCreating}
-            className="rounded-lg bg-[#C98B47] px-4 py-3 text-sm font-semibold text-[#11110F] hover:bg-[#E0A15A] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+            className="rounded-lg bg-[#C98B47] px-4 py-3 text-sm font-semibold text-[#11110F] hover:bg-[#E0A15A] disabled:opacity-60 disabled:cursor-not-allowed transition-colors glow-amber glow-amber-hover"
           >
             {isCreating ? "Creating..." : "+ Create a Deal Room"}
           </button>
@@ -180,19 +180,19 @@ export default function Home() {
           <div className="flex flex-col gap-3">
             <p className="text-xs text-[#B8AEA3] uppercase tracking-wide">Your stats</p>
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-[#24211D] rounded-lg px-3 py-3 border border-[#332D27]">
+              <div className="bg-[#24211D] rounded-lg px-3 py-3 border border-[#332D27] glow-amber-soft">
                 <p className="text-2xl font-bold text-[#F3EEE7]">{rooms.length}</p>
                 <p className="text-xs text-[#B8AEA3] mt-1">Total deals</p>
               </div>
-              <div className="bg-[#24211D] rounded-lg px-3 py-3 border border-[#332D27]">
+              <div className="bg-[#24211D] rounded-lg px-3 py-3 border border-[#332D27] glow-amber-soft">
                 <p className="text-2xl font-bold text-[#C98B47]">{completedDeals}</p>
                 <p className="text-xs text-[#B8AEA3] mt-1">Completed</p>
               </div>
-              <div className="bg-[#24211D] rounded-lg px-3 py-3 border border-[#332D27]">
+              <div className="bg-[#24211D] rounded-lg px-3 py-3 border border-[#332D27] glow-amber-soft">
                 <p className="text-2xl font-bold text-yellow-400">{pendingDeals}</p>
                 <p className="text-xs text-[#B8AEA3] mt-1">Pending</p>
               </div>
-              <div className="bg-[#24211D] rounded-lg px-3 py-3 border border-[#332D27]">
+              <div className="bg-[#24211D] rounded-lg px-3 py-3 border border-[#332D27] glow-amber-soft">
                 <p className="text-2xl font-bold text-[#C98B47]">
                   {rooms.filter(r => r.creator_address === address).length}
                 </p>
@@ -268,8 +268,7 @@ export default function Home() {
                 <button
                   onClick={handleCreateRoom}
                   disabled={isCreating}
-                  className="rounded-lg bg-[#C98B47] px-5 py-2.5 text-sm font-semibold text-[#11110F] hover:bg-[#E0A15A] disabled:opacity-60 transition-colors"
-                >
+                  className="rounded-lg bg-[#C98B47] px-5 py-2.5 text-sm font-semibold text-[#11110F] hover:bg-[#E0A15A] disabled:opacity-60 transition-colors glow-amber glow-amber-hover"                >
                   {isCreating ? "Creating..." : "Create your first Deal Room"}
                 </button>
               </div>
@@ -288,7 +287,7 @@ export default function Home() {
                       onClick={() => setFilter(tab.key as typeof filter)}
                       className={`text-xs px-3 py-1.5 rounded-full font-medium transition-colors ${
                         filter === tab.key
-                          ? "bg-[#C98B47] text-[#11110F]"
+                          ? "bg-[#C98B47] text-[#11110F] glow-amber"
                           : "bg-[#24211D] text-[#B8AEA3] border border-[#332D27] hover:border-[#C98B47] hover:text-[#F3EEE7]"
                       }`}
                     >
@@ -310,7 +309,7 @@ export default function Home() {
                         <div
                           key={room.id}
                           onClick={() => router.push(`/room/${room.id}`)}
-                          className="flex items-center justify-between bg-[#1A1916] border border-[#332D27] rounded-xl px-5 py-4 cursor-pointer hover:border-[#C98B47] transition-colors"
+                          className="flex items-center justify-between bg-[#1A1916] border border-[#332D27] rounded-xl px-5 py-4 cursor-pointer glow-card-hover"
                         >
                           <div className="flex flex-col gap-1">
                             <p className="text-[#F3EEE7] text-sm font-medium">Room #{room.id}</p>

@@ -1,27 +1,16 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* Backgrounds */
   --color-base: #11110F;
   --color-surface: #1A1916;
   --color-elevated: #24211D;
-
-  /* Accent */
   --color-accent: #C98B47;
   --color-accent-hover: #E0A15A;
-
-  /* Text */
   --color-text-primary: #F3EEE7;
   --color-text-secondary: #B8AEA3;
-
-  /* Borders */
   --color-border: #332D27;
-
-  /* Semantic (for Tailwind bg-background etc) */
   --color-background: #11110F;
   --color-foreground: #F3EEE7;
-
-  /* Typography */
   --font-sans: 'Inter', system-ui, sans-serif;
 }
 
@@ -30,4 +19,30 @@ body {
   color: #F3EEE7;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Amber glow utilities */
+.glow-amber {
+  box-shadow: 0 0 18px rgba(201, 139, 71, 0.35), 0 0 6px rgba(201, 139, 71, 0.2);
+}
+
+.glow-amber-hover {
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.glow-amber-hover:hover {
+  box-shadow: 0 0 22px rgba(201, 139, 71, 0.45), 0 0 8px rgba(201, 139, 71, 0.25);
+}
+
+.glow-amber-soft {
+  box-shadow: 0 0 12px rgba(201, 139, 71, 0.15), inset 0 0 8px rgba(201, 139, 71, 0.05);
+}
+
+.glow-card-hover {
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.glow-card-hover:hover {
+  box-shadow: 0 0 16px rgba(201, 139, 71, 0.2), 0 0 4px rgba(201, 139, 71, 0.1);
+  border-color: #C98B47;
 }
