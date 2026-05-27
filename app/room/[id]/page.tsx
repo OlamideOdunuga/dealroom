@@ -257,7 +257,7 @@ function handleCancelSeal() {
               </div>
             )}
             {isSealing ? (
-              <p className="text-gray-400 text-sm">Sealing your terms to the blockchain... this takes about 20 seconds.</p>
+              <p className="text-gray-400 text-sm">Sealing your terms to the blockchain... You'll confirm twice in your wallet, this is normal. This takes about 20 seconds.</p>
             ) : (
               <TermsForm onSubmit={handleTermsPreSubmit} />
             )}

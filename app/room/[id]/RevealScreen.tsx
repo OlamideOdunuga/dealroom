@@ -109,7 +109,7 @@ export default function RevealScreen({
     abi: DEAL_CONFIRMATION_ABI,
     functionName: "getDealStatus",
     args: [roomId],
-    query: { enabled: revealed },
+    query: { enabled: revealed, refetchInterval: 3000 },
   });
 
   const creatorSigned = Array.isArray(dealStatus) ? Boolean(dealStatus[0]) : false;
