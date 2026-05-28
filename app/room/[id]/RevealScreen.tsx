@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { revealTermsVault, VaultError } from "@/lib/vault";
-import { useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
+import { useWriteContract, useReadContract } from "wagmi";
 import { DEAL_CONFIRMATION_ADDRESS, DEAL_CONFIRMATION_ABI } from "@/lib/contract";
 import { supabase } from "@/lib/supabase";
 
@@ -48,6 +48,10 @@ export default function RevealScreen({
   const [confirmError, setConfirmError] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
+
+  // Animation state
+  const [visibleRows, setVisibleRows] = useState<number[]>([]);
+  const [displayCount, setDisplayCount] = useState(0);
 
   useEffect(() => {
     const stored = localStorage.getItem(`txHash_${roomId}`);
@@ -98,6 +102,35 @@ export default function RevealScreen({
     }
     fetchTxFromStoryscan();
   }, [roomId, txHash]);
+
+  // ── Stagger rows in after reveal ────────────────────────────
+  useEffect(() => {
+    if (!revealed) return;
+    setVisibleRows([]);
+    setDisplayCount(0);
+    [0, 1, 2, 3, 4].forEach((i) => {
+      setTimeout(() => {
+        setVisibleRows((prev) => [...prev, i]);
+      }, 150 + i * 80);
+    });
+  }, [revealed]);
+
+  // ── Animate alignment count after rows settle ────────────────
+  useEffect(() => {
+    if (!revealed || alignedCount === 0) return;
+    // Start counting after last row has appeared
+    const startDelay = 150 + 4 * 80 + 250;
+    const timer = setTimeout(() => {
+      let current = 0;
+      const interval = setInterval(() => {
+        current += 1;
+        setDisplayCount(current);
+        if (current >= alignedCount) clearInterval(interval);
+      }, 120);
+    }, startDelay);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [revealed]);
 
   const { writeContractAsync, isPending: isConfirming } = useWriteContract();
 
@@ -163,6 +196,24 @@ export default function RevealScreen({
     }
   }
 
+  // ── Derived match values ─────────────────────────────────────
+  const royaltyMatch = myTerms && theirTerms
+    ? myTerms.royaltySplit + theirTerms.royaltySplit >= 90 && myTerms.royaltySplit + theirTerms.royaltySplit <= 110
+    : false;
+  const paymentMatch = myTerms && theirTerms
+    ? Math.abs(myTerms.payment - theirTerms.payment) / (Math.max(myTerms.payment, theirTerms.payment) || 1) <= 0.3
+    : false;
+  const deliverableMatch = myTerms && theirTerms
+    ? myTerms.deliverable.toLowerCase() === theirTerms.deliverable.toLowerCase()
+    : false;
+  const timelineMatch = myTerms && theirTerms
+    ? myTerms.timeline === theirTerms.timeline
+    : false;
+  const nonNegotiableMatch = myTerms && theirTerms
+    ? myTerms.nonNegotiable.toLowerCase() === theirTerms.nonNegotiable.toLowerCase()
+    : false;
+  const alignedCount = [royaltyMatch, paymentMatch, deliverableMatch, timelineMatch, nonNegotiableMatch].filter(Boolean).length;
+
   function handleDownloadSummary() {
     if (!myTerms || !theirTerms) return;
     const now = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
@@ -181,24 +232,6 @@ export default function RevealScreen({
     printWindow.focus();
     setTimeout(() => { printWindow.print(); }, 500);
   }
-
-  // ── Derived match values ─────────────────────────────────────
-  const royaltyMatch = myTerms && theirTerms
-    ? myTerms.royaltySplit + theirTerms.royaltySplit >= 90 && myTerms.royaltySplit + theirTerms.royaltySplit <= 110
-    : false;
-  const paymentMatch = myTerms && theirTerms
-    ? Math.abs(myTerms.payment - theirTerms.payment) / (Math.max(myTerms.payment, theirTerms.payment) || 1) <= 0.3
-    : false;
-  const deliverableMatch = myTerms && theirTerms
-    ? myTerms.deliverable.toLowerCase() === theirTerms.deliverable.toLowerCase()
-    : false;
-  const timelineMatch = myTerms && theirTerms
-    ? myTerms.timeline === theirTerms.timeline
-    : false;
-  const nonNegotiableMatch = myTerms && theirTerms
-    ? myTerms.nonNegotiable.toLowerCase() === theirTerms.nonNegotiable.toLowerCase()
-    : false;
-  const alignedCount = [royaltyMatch, paymentMatch, deliverableMatch, timelineMatch, nonNegotiableMatch].filter(Boolean).length;
 
   function matchBadge(isMatch: boolean) {
     return isMatch ? (
@@ -268,6 +301,14 @@ export default function RevealScreen({
   }
 
   // ── Revealed state ───────────────────────────────────────────
+  const rows = [
+    { label: "Royalty",     mine: `${myTerms?.royaltySplit}%`,       theirs: `${theirTerms?.royaltySplit}%`,       match: royaltyMatch,      wrap: false },
+    { label: "Deliverable", mine: myTerms?.deliverable ?? "",         theirs: theirTerms?.deliverable ?? "",        match: deliverableMatch,  wrap: true  },
+    { label: "Timeline",    mine: myTerms?.timeline ?? "",            theirs: theirTerms?.timeline ?? "",           match: timelineMatch,     wrap: false },
+    { label: "Payment",     mine: `$${myTerms?.payment}`,            theirs: `$${theirTerms?.payment}`,            match: paymentMatch,      wrap: false },
+    { label: "Non-neg.",    mine: myTerms?.nonNegotiable ?? "",       theirs: theirTerms?.nonNegotiable ?? "",      match: nonNegotiableMatch, wrap: true },
+  ];
+
   return (
     <div className="flex flex-col gap-4 w-full">
 
@@ -275,31 +316,40 @@ export default function RevealScreen({
       <div className="gloss-panel overflow-hidden">
         {/* Column headers */}
         <div className="flex items-center px-4 pt-3.5 pb-2.5">
-          <span className="text-[0.65rem] text-white/25 uppercase tracking-wider w-[30%]">Field</span>
-          <span className="text-[0.65rem] text-[#4ADE80] uppercase tracking-wider w-[26%] text-center">Yours</span>
-          <span className="text-[0.65rem] text-[#7C72F5] uppercase tracking-wider w-[26%] text-right">Theirs</span>
+          <span className="text-[0.65rem] text-white/25 uppercase tracking-wider w-[28%]">Field</span>
+          <span className="text-[0.65rem] text-[#4ADE80] uppercase tracking-wider w-[27%] text-center">Yours</span>
+          <span className="text-[0.65rem] text-[#7C72F5] uppercase tracking-wider w-[27%] text-right">Theirs</span>
           <span className="text-[0.65rem] text-white/25 uppercase tracking-wider w-[18%] text-right">Match</span>
         </div>
 
-        {[
-          { label: "Royalty", mine: `${myTerms?.royaltySplit}%`, theirs: `${theirTerms?.royaltySplit}%`, match: royaltyMatch },
-          { label: "Deliverable", mine: myTerms?.deliverable ?? "", theirs: theirTerms?.deliverable ?? "", match: deliverableMatch, truncate: true },
-          { label: "Timeline", mine: myTerms?.timeline ?? "", theirs: theirTerms?.timeline ?? "", match: timelineMatch },
-          { label: "Payment", mine: `$${myTerms?.payment}`, theirs: `$${theirTerms?.payment}`, match: paymentMatch },
-          { label: "Non-neg.", mine: myTerms?.nonNegotiable ?? "", theirs: theirTerms?.nonNegotiable ?? "", match: nonNegotiableMatch, truncate: true },
-        ].map((row, i) => (
-          <div key={i} className="flex items-center px-4 py-3 border-t border-white/[0.05]">
-            <span className="text-sm text-white/50 w-[30%]">{row.label}</span>
-            <span className={`text-sm text-white w-[26%] text-center ${row.truncate ? "truncate" : ""}`} title={row.truncate ? row.mine : undefined}>{row.mine}</span>
-            <span className={`text-sm text-white w-[26%] text-right ${row.truncate ? "truncate" : ""}`} title={row.truncate ? row.theirs : undefined}>{row.theirs}</span>
-            <span className="w-[18%] flex justify-end">{matchBadge(row.match)}</span>
+        {rows.map((row, i) => (
+          <div
+            key={i}
+            className={`flex ${row.wrap ? "items-start" : "items-center"} px-4 py-3 border-t border-white/[0.05] transition-all duration-300 ${
+              visibleRows.includes(i) ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1"
+            }`}
+          >
+            <span className={`text-xs sm:text-sm text-white/50 w-[28%] ${row.wrap ? "pt-0.5" : ""}`}>
+              {row.label}
+            </span>
+            <span className={`text-xs sm:text-sm text-white w-[27%] text-center ${row.wrap ? "break-words hyphens-auto" : ""} ${row.wrap ? "pt-0.5" : ""}`}>
+              {row.mine}
+            </span>
+            <span className={`text-xs sm:text-sm text-white w-[27%] text-right ${row.wrap ? "break-words hyphens-auto" : ""} ${row.wrap ? "pt-0.5" : ""}`}>
+              {row.theirs}
+            </span>
+            <span className={`w-[18%] flex justify-end ${row.wrap ? "pt-0.5" : ""}`}>
+              {matchBadge(row.match)}
+            </span>
           </div>
         ))}
       </div>
 
       {/* Alignment score */}
       <div className="gloss-panel px-4 py-3 flex items-center justify-center gap-2">
-        <span className="text-xl font-bold text-white">{alignedCount}</span>
+        <span className="text-xl font-bold text-white tabular-nums transition-all duration-300">
+          {displayCount}
+        </span>
         <span className="text-white/30 text-sm">/</span>
         <span className="text-xl font-bold text-white/30">5</span>
         <span className="text-white/35 text-sm ml-1">fields aligned</span>
@@ -310,22 +360,26 @@ export default function RevealScreen({
         <div className="gloss-panel px-4 py-3 flex items-center justify-between text-sm">
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full transition-colors ${creatorSigned ? "bg-[#4ADE80]" : "bg-white/15"}`} />
-            <span className="text-white/45">Creator</span>
+            <span className="text-white/45 text-xs sm:text-sm">Creator</span>
             {creatorSigned && <span className="text-[#4ADE80] text-xs">Signed</span>}
           </div>
           <div className="flex items-center gap-2">
             {joinerSigned && <span className="text-[#4ADE80] text-xs">Signed</span>}
-            <span className="text-white/45">Counterparty</span>
+            <span className="text-white/45 text-xs sm:text-sm">Counterparty</span>
             <div className={`w-2 h-2 rounded-full transition-colors ${joinerSigned ? "bg-[#4ADE80]" : "bg-white/15"}`} />
           </div>
         </div>
 
         {bothSigned ? (
-          <div className="gloss-panel px-4 py-4 flex flex-col items-center gap-2 border border-[#4ADE80]/20 bg-[#4ADE80]/5">
+          <div className="gloss-panel px-4 py-4 flex flex-col items-center gap-2 border border-[#4ADE80]/25 bg-[#4ADE80]/5 shadow-[0_0_24px_rgba(74,222,128,0.07)]">
             <p className="text-[#4ADE80] text-sm font-semibold">🔒 Deal sealed onchain by both parties</p>
             {txHash && (
-              <a href={`https://aeneid.storyscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer"
-                className="text-[#4ADE80]/55 text-xs underline hover:text-[#4ADE80] transition-colors">
+              <a
+                href={`https://aeneid.storyscan.io/tx/${txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#4ADE80]/55 text-xs underline hover:text-[#4ADE80] transition-colors"
+              >
                 View on Storyscan →
               </a>
             )}
