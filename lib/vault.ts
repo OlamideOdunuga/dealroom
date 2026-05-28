@@ -48,7 +48,8 @@ function classifyError(err: unknown): VaultError {
     return new VaultError("DECRYPTION_FAILED", "Failed to decrypt the terms. The vault data may be corrupted.");
   }
 
-  return new VaultError("UNKNOWN", "An unexpected error occurred. Please try again.");
+  const detail = err instanceof Error ? err.message : String(err);
+  return new VaultError("UNKNOWN", `Unexpected error: ${detail}`);
 }
 
 async function ensureWasm() {

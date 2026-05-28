@@ -231,6 +231,10 @@ export default function RevealScreen({
   }
 
   async function handleReveal() {
+    if (!walletClient) {
+      setError("Wallet not connected. Please reconnect your wallet and try again.");
+      return;
+    }
     setIsRevealing(true);
     setError(null);
     try {
@@ -299,25 +303,31 @@ export default function RevealScreen({
     );
   }
 
+ const keyframes = `
+    @keyframes flareOut {
+      0%   { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    @keyframes sweep {
+      0%   { width: 0%; opacity: 1; }
+      85%  { width: 100%; opacity: 1; }
+      100% { width: 100%; opacity: 0; }
+    }
+    @keyframes labelFade {
+      0%   { opacity: 0; }
+      15%  { opacity: 1; }
+      85%  { opacity: 1; }
+      100% { opacity: 0; }
+    }
+  `;
+
   // ────────────────────────────────────────────────────────────
   // RENDER: Countdown phase
   // ────────────────────────────────────────────────────────────
   if (!revealed && isCountingDown) {
     return (
       <>
-        <style>{`
-          @keyframes sweep {
-            0%   { width: 0%; opacity: 1; }
-            85%  { width: 100%; opacity: 1; }
-            100% { width: 100%; opacity: 0; }
-          }
-          @keyframes labelFade {
-            0%   { opacity: 0; }
-            15%  { opacity: 1; }
-            85%  { opacity: 1; }
-            100% { opacity: 0; }
-          }
-        `}</style>
+        <style dangerouslySetInnerHTML={{ __html: keyframes }} />
         <div className="flex flex-col items-center gap-5 w-full">
           <div className="gloss-panel w-full px-6 py-12 flex flex-col items-center justify-center gap-5">
             <div className="w-full flex flex-col gap-3">
@@ -411,7 +421,7 @@ export default function RevealScreen({
   // ────────────────────────────────────────────────────────────
   // RENDER: Revealed
   // ────────────────────────────────────────────────────────────
-  const rows = [
+   const rows = [
     { label: "Royalty",     mine: `${myTerms?.royaltySplit}%`,       theirs: `${theirTerms?.royaltySplit}%`,       match: royaltyMatch,       wrap: false },
     { label: "Deliverable", mine: myTerms?.deliverable ?? "",         theirs: theirTerms?.deliverable ?? "",        match: deliverableMatch,   wrap: true  },
     { label: "Timeline",    mine: myTerms?.timeline ?? "",            theirs: theirTerms?.timeline ?? "",           match: timelineMatch,      wrap: false },
@@ -422,12 +432,7 @@ export default function RevealScreen({
   return (
     <>
       {/* ── Keyframes ── */}
-      <style>{`
-        @keyframes flareOut {
-          0%   { opacity: 1; }
-          100% { opacity: 0; }
-        }
-      `}</style>
+       
 
       {/* ── Radial flare ── */}
       {flareActive && (
