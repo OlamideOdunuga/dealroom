@@ -195,9 +195,25 @@ export default function RoomPage() {
   const joinerHasJoined = !!room?.joiner_address;
   const bothCommitted = room?.status === "both_committed";
 
+  const isOKXBrowser = typeof navigator !== "undefined" &&
+    (navigator.userAgent.includes("OKApp") || navigator.userAgent.includes("OKEx"));
+
   // ── Main room ────────────────────────────────────────────────
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-page px-6 py-12">
+
+      {/* OKX browser warning */}
+      {isOKXBrowser && (
+        <div className="w-full max-w-lg rounded-lg border border-yellow-700/40 bg-yellow-900/20 px-4 py-3 flex items-start gap-2">
+          <svg className="w-4 h-4 text-yellow-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+          </svg>
+          <p className="text-yellow-400 text-sm leading-relaxed">
+            OKX in-app browser doesn't support dApp transactions. Open this page in{" "}
+            <span className="text-yellow-200 font-medium">OKX Wallet → dApp browser</span>, MetaMask, or Chrome instead.
+          </p>
+        </div>
+      )}
 
       {/* Header */}
       <div className="w-full max-w-lg flex justify-between items-center">
