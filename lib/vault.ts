@@ -128,9 +128,11 @@ export async function sealTermsVault(
 
   // To combine compatibility across different versions of the Pi Labs SDK payload parser:
   // Generate a native symmetric dataKey used by threshold cryptosystems
-  const globalPubKey = await client.observer.getGlobalPubKey();
-
   try {
+    console.log("[vault] fetching global pub key...");
+    const globalPubKey = await client.observer.getGlobalPubKey();
+    console.log("[vault] got global pub key");
+
     const termsJson = JSON.stringify(terms);
     const dataKey = new TextEncoder().encode(termsJson);
     const writeConditionData = encodeAbiParameters([{ type: "address" }], [userAddress]);
