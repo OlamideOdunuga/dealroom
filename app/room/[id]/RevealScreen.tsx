@@ -254,7 +254,8 @@ export default function RevealScreen({
         setError(e.userMessage);
         setIsRetryable(e.code !== "VAULT_NOT_FOUND" && e.code !== "DECRYPTION_FAILED");
       } else {
-        setError("An unexpected error occurred. Please try again.");
+        const msg = e instanceof Error ? e.message : String(e);
+        setError(`Error: ${msg}`);
         setIsRetryable(true);
       }
       setIsRevealing(false);
