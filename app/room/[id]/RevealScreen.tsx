@@ -57,6 +57,8 @@ export default function RevealScreen({
   const [confirmError,setConfirmError]= useState<string | null>(null);
   const [confirmed,   setConfirmed]   = useState(false);
   const [txHash,      setTxHash]      = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState<string>("");
 
   // ── Animation state ──────────────────────────────────────────
  const [isCountingDown, setIsCountingDown] = useState(false);
@@ -266,9 +268,9 @@ export default function RevealScreen({
     }
   }
 
-  // ── Download summary ─────────────────────────────────────────
-  function handleDownloadSummary() {
-    if (!myTerms || !theirTerms) return;
+  // ── Summary HTML generator ────────────────────────────────────
+  function buildSummaryHtml(): string {
+    if (!myTerms || !theirTerms) return "";
     const now = new Date().toLocaleDateString("en-GB", {
       day: "numeric", month: "long", year: "numeric",
     });
@@ -279,6 +281,19 @@ export default function RevealScreen({
           .toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : null,
     };
     const html = `<!DOCTYPE html><html><head><title>Deal Room Summary — ${roomId}</title><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#111;padding:48px;font-size:14px;}h1{font-size:22px;font-weight:700;margin-bottom:4px;}.meta{color:#666;font-size:12px;margin-bottom:32px;}.section{margin-bottom:28px;}.section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:12px;}table{width:100%;border-collapse:collapse;}th{text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;color:#888;padding:6px 10px;border-bottom:2px solid #eee;}td{padding:10px;border-bottom:1px solid #f0f0f0;font-size:13px;}.badge-match{background:#d1fae5;color:#065f46;font-size:11px;padding:2px 8px;border-radius:999px;font-weight:500;}.badge-gap{background:#fef3c7;color:#92400e;font-size:11px;padding:2px 8px;border-radius:999px;font-weight:500;}.summary-box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;}.summary-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:13px;}.summary-row:last-child{border-bottom:none;}.label{color:#666;}.value{font-weight:600;}.footer{margin-top:40px;padding-top:16px;border-top:1px solid #eee;font-size:11px;color:#aaa;}</style></head><body><h1>Deal Room Summary</h1><p class="meta">Room ID: ${roomId} &nbsp;·&nbsp; Generated: ${now}</p><div class="section"><p class="section-title">Parties</p><div class="summary-box"><div class="summary-row"><span class="label">Creator</span><span class="value">${creatorAddress}</span></div><div class="summary-row"><span class="label">Counterparty</span><span class="value">${joinerAddress}</span></div></div></div><div class="section"><p class="section-title">Terms Comparison</p><table><thead><tr><th>Field</th><th>Your Terms</th><th>Their Terms</th><th>Status</th></tr></thead><tbody><tr><td>Royalty Split</td><td>${myTerms.royaltySplit}%</td><td>${theirTerms.royaltySplit}%</td><td><span class="${royaltyMatch?'badge-match':'badge-gap'}">${royaltyMatch?'Close match':'Gap'}</span></td></tr><tr><td>Deliverable</td><td>${myTerms.deliverable}</td><td>${theirTerms.deliverable}</td><td><span class="${deliverableMatch?'badge-match':'badge-gap'}">${deliverableMatch?'Close match':'Gap'}</span></td></tr><tr><td>Timeline</td><td>${myTerms.timeline}</td><td>${theirTerms.timeline}</td><td><span class="${timelineMatch?'badge-match':'badge-gap'}">${timelineMatch?'Close match':'Gap'}</span></td></tr><tr><td>Payment</td><td>$${myTerms.payment}</td><td>$${theirTerms.payment}</td><td><span class="${paymentMatch?'badge-match':'badge-gap'}">${paymentMatch?'Close match':'Gap'}</span></td></tr><tr><td>Non-negotiable</td><td>${myTerms.nonNegotiable}</td><td>${theirTerms.nonNegotiable}</td><td><span class="${nonNegotiableMatch?'badge-match':'badge-gap'}">${nonNegotiableMatch?'Close match':'Gap'}</span></td></tr></tbody></table></div><div class="section"><p style="font-size:15px;font-weight:700;margin-bottom:4px;">${alignedCount} / 5 fields aligned</p>${compromise.royalty||compromise.payment||compromise.timeline?`<p class="section-title" style="margin-top:16px;">Suggested Compromise</p><div class="summary-box">${compromise.royalty?`<div class="summary-row"><span class="label">Royalty split</span><span class="value">${compromise.royalty}</span></div>`:''} ${compromise.payment?`<div class="summary-row"><span class="label">Upfront payment</span><span class="value">${compromise.payment}</span></div>`:''} ${compromise.timeline?`<div class="summary-row"><span class="label">Timeline</span><span class="value">${compromise.timeline}</span></div>`:''}</div>`:''}</div><div class="section"><p class="section-title">Onchain Agreement</p><div class="summary-box"><div class="summary-row"><span class="label">Creator</span><span class="value">${creatorSigned?'✓ Signed':'Pending'}</span></div><div class="summary-row"><span class="label">Counterparty</span><span class="value">${joinerSigned?'✓ Signed':'Pending'}</span></div></div></div><div class="footer"><p>Terms sealed via Confidential Data Rails (CDR) on Story Protocol · dealroom-red.vercel.app</p></div></body></html>`;
+    return html;
+  }
+
+  function handlePreviewSummary() {
+    const html = buildSummaryHtml();
+    if (!html) return;
+    setPreviewHtml(html);
+    setShowPreview(true);
+  }
+
+  function handleDownloadSummary() {
+    const html = buildSummaryHtml();
+    if (!html) return;
     const blob = new Blob([html], { type: "text/html" });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement("a");
@@ -431,8 +446,7 @@ export default function RevealScreen({
 
   return (
     <>
-      {/* ── Keyframes ── */}
-       
+      <style dangerouslySetInnerHTML={{ __html: keyframes }} />
 
       {/* ── Radial flare ── */}
       {flareActive && (
@@ -626,14 +640,45 @@ export default function RevealScreen({
           )}
 
           <button
-            onClick={handleDownloadSummary}
+            onClick={handlePreviewSummary}
             className="w-full gloss-panel px-6 py-3 text-sm font-semibold text-white/35 hover:text-white/65 transition-colors flex items-center justify-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
-            Download Deal Summary
+            Preview & Download Summary
           </button>
+
+          {showPreview && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+              <div className="w-full max-w-2xl flex flex-col gap-3 max-h-[90vh]">
+                <div className="flex items-center justify-between">
+                  <p className="text-white font-semibold text-sm">Deal Summary Preview</p>
+                  <button
+                    onClick={() => setShowPreview(false)}
+                    className="text-white/35 hover:text-white/70 transition-colors text-xs"
+                  >
+                    ✕ Close
+                  </button>
+                </div>
+                <iframe
+                  srcDoc={previewHtml}
+                  className="w-full rounded-lg bg-white"
+                  style={{ height: "65vh", border: "none" }}
+                  sandbox="allow-same-origin"
+                />
+                <button
+                  onClick={() => { handleDownloadSummary(); setShowPreview(false); }}
+                  className="w-full rounded-lg bg-[#7C72F5] px-6 py-3 text-sm font-semibold text-white hover:bg-[#6457E8] transition-colors glow-accent flex items-center justify-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                  </svg>
+                  Download
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </>
