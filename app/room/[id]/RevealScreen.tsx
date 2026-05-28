@@ -322,13 +322,16 @@ export default function RevealScreen({
           <span className="text-[0.65rem] text-white/25 uppercase tracking-wider w-[18%] text-right">Match</span>
         </div>
 
-        {rows.map((row, i) => (
-          <div
-            key={i}
-            className={`flex ${row.wrap ? "items-start" : "items-center"} px-4 py-3 border-t border-white/[0.05] transition-all duration-300 ${
-              visibleRows.includes(i) ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1"
-            }`}
-          >
+       {rows.map((row, i) => (
+  <div
+    key={i}
+    className={`flex ${row.wrap ? "items-start" : "items-center"} px-4 py-3 border-t border-white/[0.05]`}
+    style={{
+      opacity: visibleRows.includes(i) ? 1 : 0,
+      transform: visibleRows.includes(i) ? "translateY(0)" : "translateY(6px)",
+      transition: "opacity 0.3s ease, transform 0.3s ease",
+    }}
+  >
             <span className={`text-xs sm:text-sm text-white/50 w-[28%] ${row.wrap ? "pt-0.5" : ""}`}>
               {row.label}
             </span>
@@ -347,9 +350,12 @@ export default function RevealScreen({
 
       {/* Alignment score */}
       <div className="gloss-panel px-4 py-3 flex items-center justify-center gap-2">
-        <span className="text-xl font-bold text-white tabular-nums transition-all duration-300">
-          {displayCount}
-        </span>
+        <span
+  className="text-xl font-bold text-white"
+  style={{ transition: "all 0.2s ease" }}
+>
+  {displayCount}
+</span>
         <span className="text-white/30 text-sm">/</span>
         <span className="text-xl font-bold text-white/30">5</span>
         <span className="text-white/35 text-sm ml-1">fields aligned</span>
