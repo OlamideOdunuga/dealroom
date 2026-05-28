@@ -183,28 +183,11 @@ export async function revealTermsVault(
   const uuidNum = parseInt(uuid, 10);
 
  try {
-    let recovered: Uint8Array | undefined;
-    let lastErr: unknown;
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      try {
-        const result = await client.consumer.accessCDR({
-          uuid: uuidNum,
-          accessAuxData: "0x",
-          timeoutMs: 120000,
-        });
-        recovered = result.dataKey;
-        break;
-      } catch (e) {
-        lastErr = e;
-        const msg = e instanceof Error ? e.message : String(e);
-        if (msg.includes("publish payload") && attempt < 3) {
-          await new Promise(r => setTimeout(r, 1500 * attempt));
-          continue;
-        }
-        throw e;
-      }
-    }
-    if (!recovered) throw lastErr;
+    const result = await client.consumer.accessCDR({
+      uuid: uuidNum,
+      accessAuxData: "0x",
+    });
+    const recovered = result.dataKey;
 
     const termsJson = new TextDecoder().decode(recovered);
     console.log("[vault] revealed terms:", termsJson);
