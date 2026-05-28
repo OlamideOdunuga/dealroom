@@ -72,7 +72,7 @@ function buildCDRClient(walletClient: any, publicClient?: any) {
     network: "testnet",
     publicClient: activePublicClient,
     walletClient,
-    apiUrl: "http://172.192.41.96:1317",
+    apiUrl: "/api/cdr",
   });
 }
 
