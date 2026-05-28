@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/cdr/[...path]/route.ts": {
+      "maxDuration": 60
+    }
+  }
+}
