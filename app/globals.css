@@ -7,6 +7,12 @@
   --font-mono: var(--font-geist-mono);
 }
 
+:root {
+  --accent: #7C72F5;
+  --accent-dark: #6457E8;
+  --accent-rgb: 124, 114, 245;
+}
+
 body {
   background: #0D0C0A;
   color: #EDEAE4;
@@ -14,57 +20,101 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Coral primary glow */
+/* ── Page background ───────────────────────────────────────── */
+.bg-page {
+  background: radial-gradient(ellipse 70% 50% at 0% 0%, #100e1f 0%, #090810 45%, #060609 100%);
+  min-height: 100vh;
+}
+
+/* ── Gloss panel ───────────────────────────────────────────── */
+/*
+  Apply to any card/panel that should have the gloss treatment.
+  Children are automatically lifted above the pseudo-element overlays.
+*/
+.gloss-panel {
+  background: linear-gradient(160deg, rgba(255,255,255,0.042) 0%, rgba(255,255,255,0.012) 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.35);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+/* Gloss wash — top 40% */
+.gloss-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.048) 0%, transparent 100%);
+  border-radius: 12px 12px 0 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Specular thread — 1px highlight at very top */
+.gloss-panel::after {
+  content: '';
+  position: absolute;
+  top: 1px; left: 14%; right: 14%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.13), transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Lift all direct children above the pseudo overlays */
+.gloss-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Accent glow — primary CTA ─────────────────────────────── */
+.glow-accent {
+  box-shadow: 0 2px 16px rgba(var(--accent-rgb), 0.30), 0 1px 4px rgba(0,0,0,0.4);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+.glow-accent:hover {
+  box-shadow: 0 4px 24px rgba(var(--accent-rgb), 0.46), 0 1px 4px rgba(0,0,0,0.4);
+  transform: translateY(-1px);
+}
+
+/* Alias so any remaining coral references still work during migration */
 .glow-coral {
-  box-shadow: 0 0 28px rgba(255, 122, 89, 0.55), 0 0 10px rgba(255, 122, 89, 0.35);
+  box-shadow: 0 2px 16px rgba(var(--accent-rgb), 0.30), 0 1px 4px rgba(0,0,0,0.4);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
 }
 .glow-coral:hover {
-  box-shadow: 0 0 38px rgba(255, 122, 89, 0.7), 0 0 14px rgba(255, 122, 89, 0.5);
+  box-shadow: 0 4px 24px rgba(var(--accent-rgb), 0.46), 0 1px 4px rgba(0,0,0,0.4);
+  transform: translateY(-1px);
 }
 
-/* Status card glows */
-.glow-card-completed {
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
-}
+/* ── Room row hover glows ──────────────────────────────────── */
 .glow-card-completed:hover {
-  box-shadow: 0 0 24px rgba(95, 139, 122, 0.5), 0 0 8px rgba(95, 139, 122, 0.3);
-  border-color: rgba(95, 139, 122, 0.7);
-}
-
-.glow-card-progress {
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 0 20px rgba(74,222,128,0.12), 0 1px 8px rgba(0,0,0,0.35);
+  border-color: rgba(74,222,128,0.22) !important;
 }
 .glow-card-progress:hover {
-  box-shadow: 0 0 24px rgba(93, 107, 154, 0.5), 0 0 8px rgba(93, 107, 154, 0.3);
-  border-color: rgba(93, 107, 154, 0.7);
-}
-
-.glow-card-waiting {
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 0 20px rgba(56,189,248,0.12), 0 1px 8px rgba(0,0,0,0.35);
+  border-color: rgba(56,189,248,0.22) !important;
 }
 .glow-card-waiting:hover {
-  box-shadow: 0 0 24px rgba(168, 144, 96, 0.5), 0 0 8px rgba(168, 144, 96, 0.3);
-  border-color: rgba(168, 144, 96, 0.7);
-}
-
-.glow-card-cancelled {
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 0 20px rgba(245,158,11,0.12), 0 1px 8px rgba(0,0,0,0.35);
+  border-color: rgba(245,158,11,0.20) !important;
 }
 .glow-card-cancelled:hover {
-  box-shadow: 0 0 24px rgba(168, 97, 97, 0.5), 0 0 8px rgba(168, 97, 97, 0.3);
-  border-color: rgba(168, 97, 97, 0.7);
-}
-
-
-.glow-card-default {
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 0 14px rgba(255,255,255,0.04), 0 1px 8px rgba(0,0,0,0.35);
+  border-color: rgba(255,255,255,0.11) !important;
 }
 .glow-card-default:hover {
-  box-shadow: 0 0 16px rgba(255, 122, 89, 0.2), 0 0 4px rgba(255, 122, 89, 0.1);
-  border-color: rgba(255, 122, 89, 0.4);
+  box-shadow: 0 0 16px rgba(var(--accent-rgb), 0.10), 0 1px 8px rgba(0,0,0,0.35);
+  border-color: rgba(var(--accent-rgb), 0.18) !important;
 }
 
-/* Soft stats glow */
+/* ── Stat card inner glow ──────────────────────────────────── */
 .glow-stats {
-  box-shadow: inset 0 0 16px rgba(255, 122, 89, 0.12), 0 0 8px rgba(255, 122, 89, 0.08);
+  box-shadow:
+    inset 0 0 12px rgba(var(--accent-rgb), 0.05),
+    0 1px 8px rgba(0,0,0,0.35);
 }
