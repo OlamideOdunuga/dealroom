@@ -59,8 +59,7 @@ export default function RevealScreen({
   const [txHash,      setTxHash]      = useState<string | null>(null);
 
   // ── Animation state ──────────────────────────────────────────
-  const [countdownNum,   setCountdownNum]   = useState<number | null>(null);
-  const [isCountingDown, setIsCountingDown] = useState(false);
+ const [isCountingDown, setIsCountingDown] = useState(false);
   const [cardRisen,      setCardRisen]      = useState(false);
   const [flareActive,    setFlareActive]    = useState(false);
   const [visibleRows,    setVisibleRows]    = useState<number[]>([]);
@@ -219,21 +218,16 @@ export default function RevealScreen({
   // ── Reveal sequence ──────────────────────────────────────────
   function startRevealSequence(myT: Terms, theirT: Terms) {
     setIsCountingDown(true);
-    setCountdownNum(3);
-    setTimeout(() => setCountdownNum(2), 600);
-    setTimeout(() => setCountdownNum(1), 1200);
     setTimeout(() => {
       setIsCountingDown(false);
-      setCountdownNum(null);
       setMyTerms(myT);
       setTheirTerms(theirT);
       setRevealed(true);
-      // Flare fires at card-rise peak
       setTimeout(() => {
         setFlareActive(true);
         setTimeout(() => setFlareActive(false), 220);
       }, 260);
-    }, 1750);
+    }, 1900);
   }
 
   async function handleReveal() {
@@ -308,36 +302,42 @@ export default function RevealScreen({
     return (
       <>
         <style>{`
-          @keyframes cdPop {
-            0%   { opacity: 0; transform: scale(1.8); }
-            100% { opacity: 1; transform: scale(1);   }
+          @keyframes sweep {
+            0%   { width: 0%; opacity: 1; }
+            85%  { width: 100%; opacity: 1; }
+            100% { width: 100%; opacity: 0; }
           }
-          @keyframes cdFade {
-            0%   { opacity: 1; }
-            80%  { opacity: 1; }
+          @keyframes labelFade {
+            0%   { opacity: 0; }
+            15%  { opacity: 1; }
+            85%  { opacity: 1; }
             100% { opacity: 0; }
           }
         `}</style>
         <div className="flex flex-col items-center gap-5 w-full">
-          <div className="gloss-panel w-full px-6 py-20 flex flex-col items-center justify-center gap-5 text-center">
-            {countdownNum !== null && (
-              <span
-                key={countdownNum}
-                style={{
-                  fontSize: "5rem",
-                  fontWeight: 700,
-                  lineHeight: 1,
-                  color: "#7C72F5",
-                  textShadow: "0 0 56px rgba(124,114,245,0.55)",
-                  animation: "cdPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards",
-                }}
+          <div className="gloss-panel w-full px-6 py-12 flex flex-col items-center justify-center gap-5">
+            <div className="w-full flex flex-col gap-3">
+              {/* Track */}
+              <div className="relative w-full h-[2px] bg-white/[0.07] rounded-full overflow-hidden">
+                {/* Fill */}
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    height: "100%",
+                    background: "linear-gradient(90deg, #7C72F5, #6457E8)",
+                    boxShadow: "0 0 12px rgba(124,114,245,0.6)",
+                    animation: "sweep 1.9s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+                  }}
+                />
+              </div>
+              <p
+                className="text-[0.65rem] text-white/30 uppercase tracking-[0.22em] text-center"
+                style={{ animation: "labelFade 1.9s ease forwards" }}
               >
-                {countdownNum}
-              </span>
-            )}
-            <p className="text-white/30 text-xs tracking-[0.22em] uppercase mt-1">
-              Terms unsealing
-            </p>
+                Unsealing terms
+              </p>
+            </div>
           </div>
         </div>
       </>
