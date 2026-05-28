@@ -243,14 +243,50 @@ export default function Home() {
 
       {/* Main content */}
       <main className="flex-1 px-5 md:px-10 py-8">
-        {!isConnected ? (
-          <div className="flex flex-col items-center justify-center h-full gap-6 text-center">
-            <h2 className="text-3xl font-bold text-white">Negotiate confidentially.</h2>
-            <p className="text-white/40 max-w-md">
-              Neither party sees the other&apos;s terms until both commit. Connect your wallet to get started.
-            </p>
+       {!isConnected ? (
+  <div className="flex flex-col items-center justify-center min-h-[70vh] py-16 px-4">
+    <div className="flex flex-col items-center gap-10 max-w-sm text-center">
+
+      {/* Glow icon */}
+      <div className="relative">
+        <div className="absolute inset-0 rounded-full bg-[#7C72F5]/20 blur-2xl scale-[2.5]" />
+        <div className="relative gloss-panel w-[72px] h-[72px] rounded-[18px] flex items-center justify-center border border-[#7C72F5]/20 glow-accent">
+          <svg className="w-8 h-8 text-[#7C72F5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Headline */}
+      <div className="flex flex-col gap-3">
+        <h2 className="text-[2.6rem] leading-[1.12] font-bold text-white tracking-tight">
+          Negotiate<br />confidentially.
+        </h2>
+        <p className="text-white/35 text-[0.9375rem] leading-relaxed">
+          Neither party sees the other&apos;s terms until both commit. Encrypted on-chain via Story Protocol&apos;s CDR.
+        </p>
+      </div>
+
+      {/* Feature pills */}
+      <div className="grid grid-cols-3 gap-2.5 w-full">
+        {[
+          { icon: "🔐", label: "End-to-end encrypted" },
+          { icon: "🤝", label: "Simultaneous reveal" },
+          { icon: "⛓️", label: "Onchain agreement" },
+        ].map((f, i) => (
+          <div key={i} className="gloss-panel px-2.5 py-3 flex flex-col items-center gap-2">
+            <span className="text-lg">{f.icon}</span>
+            <span className="text-[0.68rem] text-white/30 text-center leading-snug">{f.label}</span>
           </div>
-        ) : (
+        ))}
+      </div>
+
+      <p className="text-xs text-white/20 uppercase tracking-widest">
+        Connect your wallet to get started
+      </p>
+    </div>
+  </div>
+) : (
           <div className="flex flex-col gap-8">
             <div>
               <h2 className="text-xl font-bold text-white mb-1">

@@ -30,21 +30,19 @@ export default function RoomPage() {
   const [pendingTerms, setPendingTerms] = useState<object | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
-useEffect(() => {
-  const stored = localStorage.getItem(`ownTerms_${id}`);
-  if (stored) setOwnTerms(JSON.parse(stored));
-  setOwnTermsReady(true);
-}, [id]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem(`ownTerms_${id}`);
+    if (stored) setOwnTerms(JSON.parse(stored));
+    setOwnTermsReady(true);
+  }, [id]);
 
   async function fetchRoom() {
     try {
       const data = await getRoom(id);
-      if (!data) {
-        setNotFound(true);
-      } else {
-        setRoom(data);
-      }
-    } catch (e) {
+      if (!data) setNotFound(true);
+      else setRoom(data);
+    } catch {
       setNotFound(true);
     } finally {
       setLoading(false);
@@ -62,118 +60,133 @@ useEffect(() => {
     await joinRoom(id, address);
     fetchRoom();
   }
-function handleCopyLink() {
-  navigator.clipboard.writeText(window.location.href);
-  setCopiedLink(true);
-  setTimeout(() => setCopiedLink(false), 2000);
-}
 
-function handleCopyId() {
-  navigator.clipboard.writeText(id);
-  setCopiedId(true);
-  setTimeout(() => setCopiedId(false), 2000);
-}
+  function handleCopyLink() {
+    navigator.clipboard.writeText(window.location.href);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
+  }
 
-function handleTermsPreSubmit(terms: object) {
-  setPendingTerms(terms);
-  setShowConfirm(true);
-}
+  function handleCopyId() {
+    navigator.clipboard.writeText(id);
+    setCopiedId(true);
+    setTimeout(() => setCopiedId(false), 2000);
+  }
 
-function handleConfirmSeal() {
-  setShowConfirm(false);
-  if (pendingTerms) handleTermsSubmit(pendingTerms);
-}
+  function handleTermsPreSubmit(terms: object) {
+    setPendingTerms(terms);
+    setShowConfirm(true);
+  }
 
-function handleCancelSeal() {
-  setShowConfirm(false);
-  setPendingTerms(null);
-}
+  function handleConfirmSeal() {
+    setShowConfirm(false);
+    if (pendingTerms) handleTermsSubmit(pendingTerms);
+  }
+
+  function handleCancelSeal() {
+    setShowConfirm(false);
+    setPendingTerms(null);
+  }
+
   async function handleTermsSubmit(terms: object) {
-  if (!address || !walletClient || !publicClient) {
-    setSealError("Wallet not ready. Please wait a moment and try again.");
-    return;
-  }
-  setIsSealing(true);
-  setSealError(null);
-  try {
-    const isCreator = address === room.creator_address;
-   const counterparty = (isCreator ? room.joiner_address : room.creator_address) as `0x${string}`;
-    const { uuid, encryptedData } = await sealTermsVault(terms, walletClient, publicClient, counterparty);
-    const role = isCreator ? "creator" : "joiner";
-    await updateVault(id, role, uuid, encryptedData, JSON.stringify(terms));
-    setOwnTerms(terms);
-    localStorage.setItem(`ownTerms_${id}`, JSON.stringify(terms));
-    setHasSubmitted(true);
-    fetchRoom();
-  } catch (e) {
-    console.error("[handleTermsSubmit] error:", e);
-    if (e instanceof VaultError) {
-      setSealError(e.userMessage);
-    } else {
-      setSealError("Failed to seal your terms. Please try again.");
+    if (!address || !walletClient || !publicClient) {
+      setSealError("Wallet not ready. Please wait a moment and try again.");
+      return;
     }
-  } finally {
-    setIsSealing(false);
+    setIsSealing(true);
+    setSealError(null);
+    try {
+      const isCreator = address === room.creator_address;
+      const counterparty = (isCreator ? room.joiner_address : room.creator_address) as `0x${string}`;
+      const { uuid, encryptedData } = await sealTermsVault(terms, walletClient, publicClient, counterparty);
+      const role = isCreator ? "creator" : "joiner";
+      await updateVault(id, role, uuid, encryptedData, JSON.stringify(terms));
+      setOwnTerms(terms);
+      localStorage.setItem(`ownTerms_${id}`, JSON.stringify(terms));
+      setHasSubmitted(true);
+      fetchRoom();
+    } catch (e) {
+      console.error("[handleTermsSubmit] error:", e);
+      if (e instanceof VaultError) setSealError(e.userMessage);
+      else setSealError("Failed to seal your terms. Please try again.");
+    } finally {
+      setIsSealing(false);
+    }
   }
-}
 
+  // ── Loading ──────────────────────────────────────────────────
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-gray-950">
-        <p className="text-gray-400">Loading room...</p>
+      <main className="flex min-h-screen items-center justify-center bg-page">
+        <div className="flex flex-col items-center gap-3">
+          <svg className="animate-spin h-6 w-6 text-[#7C72F5]" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          <p className="text-white/30 text-sm">Loading room...</p>
+        </div>
       </main>
     );
   }
 
+  // ── Not found ────────────────────────────────────────────────
   if (notFound) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gray-950 px-6 text-center">
-        <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gray-800">
-          <svg className="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+      <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-page px-6 text-center">
+        <div className="gloss-panel w-full max-w-sm p-8 flex flex-col items-center gap-5">
+          <div className="flex items-center justify-center w-14 h-14 rounded-2xl gloss-panel border border-white/[0.08]">
+            <svg className="w-7 h-7 text-white/25" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div className="flex flex-col gap-2">
+            <p className="text-white font-semibold text-lg">Room not found</p>
+            <p className="text-white/35 text-sm max-w-xs">This deal room doesn&apos;t exist or may have expired. Double-check the link or ID.</p>
+          </div>
+          <button
+            onClick={() => router.push("/")}
+            className="rounded-lg bg-[#7C72F5] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#6457E8] transition-colors glow-accent"
+          >
+            Back to dashboard
+          </button>
         </div>
-        <div className="flex flex-col gap-2">
-          <p className="text-white font-semibold text-lg">Room not found</p>
-          <p className="text-gray-500 text-sm max-w-xs">This deal room doesn't exist or may have expired. Double-check the link or ID.</p>
-        </div>
-        <button
-          onClick={() => router.push("/")}
-          className="rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-gray-950 hover:bg-gray-200 transition-colors"
-        >
-          Back to dashboard
-        </button>
       </main>
     );
   }
 
+  // ── Cancelled ────────────────────────────────────────────────
   if (room?.status === "cancelled") {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gray-950 px-6 text-center">
-        <div className="flex items-center justify-center w-16 h-16 rounded-full bg-gray-800">
-          <svg className="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-          </svg>
+      <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-page px-6 text-center">
+        <div className="gloss-panel w-full max-w-sm p-8 flex flex-col items-center gap-5">
+          <div className="flex items-center justify-center w-14 h-14 rounded-2xl gloss-panel border border-white/[0.08]">
+            <svg className="w-7 h-7 text-white/25" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          <div className="flex flex-col gap-2">
+            <p className="text-white font-semibold text-lg">Deal room cancelled</p>
+            <p className="text-white/35 text-sm max-w-xs">This deal room was cancelled by the creator. No terms were exchanged.</p>
+          </div>
+          <button
+            onClick={() => router.push("/")}
+            className="rounded-lg bg-[#7C72F5] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#6457E8] transition-colors glow-accent"
+          >
+            Back to dashboard
+          </button>
         </div>
-        <div className="flex flex-col gap-2">
-          <p className="text-white font-semibold text-lg">Deal room cancelled</p>
-          <p className="text-gray-500 text-sm max-w-xs">This deal room was cancelled by the creator. No terms were exchanged.</p>
-        </div>
-        <button
-          onClick={() => router.push("/")}
-          className="rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-gray-950 hover:bg-gray-200 transition-colors"
-        >
-          Back to dashboard
-        </button>
       </main>
     );
   }
 
+  // ── Unauthenticated ──────────────────────────────────────────
   if (!isConnected) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-gray-950">
-        <p className="text-gray-400">Connect your wallet to continue</p>
-        <ConnectButton />
+      <main className="flex min-h-screen flex-col items-center justify-center gap-5 bg-page px-6">
+        <div className="gloss-panel w-full max-w-sm px-8 py-10 flex flex-col items-center gap-5 text-center">
+          <p className="text-white/40 text-sm">Connect your wallet to continue</p>
+          <ConnectButton />
+        </div>
       </main>
     );
   }
@@ -182,13 +195,16 @@ function handleCancelSeal() {
   const joinerHasJoined = !!room?.joiner_address;
   const bothCommitted = room?.status === "both_committed";
 
+  // ── Main room ────────────────────────────────────────────────
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-gray-950 px-6 py-12">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-page px-6 py-12">
+
+      {/* Header */}
       <div className="w-full max-w-lg flex justify-between items-center">
         <div className="flex flex-col gap-1">
           <button
             onClick={() => router.push("/")}
-            className="text-xs text-gray-500 hover:text-gray-300 transition-colors flex items-center gap-1"
+            className="text-xs text-white/25 hover:text-white/50 transition-colors flex items-center gap-1"
           >
             ← Back to dashboard
           </button>
@@ -197,33 +213,37 @@ function handleCancelSeal() {
         <ConnectButton />
       </div>
 
-      <div className="w-full max-w-lg">
-        <div className="mb-6 rounded-lg bg-gray-800 px-4 py-3 text-sm text-gray-400">
-      Status: <span className="text-white font-medium">
-      {room?.status === "waiting" ? "Waiting for other party" :
-      room?.status === "both_joined" ? "Both parties connected" :
-      room?.status === "both_committed" ? "Terms sealed. Ready to reveal" :
-      room?.status}
-      </span>
-      </div>
+      {/* Content */}
+      <div className="w-full max-w-lg flex flex-col gap-5">
+
+        {/* Status bar */}
+        <div className="gloss-panel px-4 py-3 text-sm text-white/40">
+          Status:{" "}
+          <span className="text-white font-medium">
+            {room?.status === "waiting" ? "Waiting for other party" :
+             room?.status === "both_joined" ? "Both parties connected" :
+             room?.status === "both_committed" ? "Terms sealed — ready to reveal" :
+             room?.status}
+          </span>
+        </div>
 
         {/* Creator waiting for joiner */}
         {isCreator && !joinerHasJoined && (
           <div className="flex flex-col gap-4">
-            <p className="text-gray-400 text-sm">Waiting for the other party to join. Share this link:</p>
-            <div className="bg-gray-800 rounded-lg px-4 py-3 text-sm text-white break-all">
+            <p className="text-white/40 text-sm">Waiting for the other party to join. Share this link:</p>
+            <div className="gloss-panel px-4 py-3 text-sm text-white/60 break-all font-mono">
               {typeof window !== "undefined" ? window.location.href : ""}
             </div>
             <div className="flex gap-3">
               <button
                 onClick={handleCopyLink}
-                className="flex-1 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-950 hover:bg-gray-200 transition-colors"
+                className="flex-1 rounded-lg bg-[#7C72F5] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#6457E8] transition-colors glow-accent"
               >
                 {copiedLink ? "Copied!" : "Copy Link"}
               </button>
               <button
                 onClick={handleCopyId}
-                className="flex-1 rounded-lg bg-gray-800 border border-gray-700 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700 transition-colors"
+                className="flex-1 gloss-panel px-4 py-2.5 text-sm font-semibold text-white/45 hover:text-white/75 transition-colors"
               >
                 {copiedId ? "Copied!" : "Copy Room ID"}
               </button>
@@ -234,22 +254,22 @@ function handleCancelSeal() {
         {/* Joiner needs to join */}
         {!isCreator && !joinerHasJoined && (
           <div className="flex flex-col gap-4">
-            <p className="text-gray-400 text-sm">You have been invited to a Deal Room.</p>
+            <p className="text-white/40 text-sm">You have been invited to a Deal Room.</p>
             <button
               onClick={handleJoin}
-              className="rounded-lg bg-white px-6 py-3 text-sm font-semibold text-gray-950 hover:bg-gray-200"
+              className="rounded-lg bg-[#7C72F5] px-6 py-3 text-sm font-semibold text-white hover:bg-[#6457E8] transition-colors glow-accent"
             >
               Join this Deal Room
             </button>
           </div>
         )}
 
-        {/* Both joined — show terms form */}
+        {/* Both joined — terms form */}
         {joinerHasJoined && !bothCommitted && !hasSubmitted && (
           <div className="flex flex-col gap-4">
             <p className="text-white font-medium">Both parties connected. Submit your terms.</p>
             {sealError && (
-              <div className="flex items-start gap-2 w-full rounded-lg bg-red-900/30 border border-red-800/50 px-4 py-3">
+              <div className="flex items-start gap-2 w-full gloss-panel border border-red-800/40 bg-red-900/10 px-4 py-3">
                 <svg className="w-4 h-4 text-red-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -257,20 +277,32 @@ function handleCancelSeal() {
               </div>
             )}
             {isSealing ? (
-              <p className="text-gray-400 text-sm">Sealing your terms to the blockchain... You'll confirm twice in your wallet, this is normal. This takes about 20 seconds.</p>
+              <div className="gloss-panel px-4 py-4 flex items-center gap-3">
+                <svg className="animate-spin h-4 w-4 text-[#7C72F5] shrink-0" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                <p className="text-white/40 text-sm">Sealing to the blockchain... You&apos;ll confirm twice in your wallet. Takes ~20 seconds.</p>
+              </div>
             ) : (
               <TermsForm onSubmit={handleTermsPreSubmit} />
             )}
           </div>
         )}
 
-        {/* User submitted, waiting for other party */}
+        {/* Submitted, waiting for other party */}
         {joinerHasJoined && !bothCommitted && hasSubmitted && (
-          <p className="text-gray-400 text-sm">Your terms are sealed. Waiting for the other party to submit theirs.</p>
+          <div className="gloss-panel px-4 py-4 flex items-center gap-3">
+            <svg className="animate-spin h-4 w-4 text-[#7C72F5] shrink-0" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            <p className="text-white/40 text-sm">Your terms are sealed. Waiting for the other party to submit theirs.</p>
+          </div>
         )}
 
-       {/* Both committed — reveal screen */}
-       {bothCommitted && ownTermsReady && (
+        {/* Both committed — reveal screen */}
+        {bothCommitted && ownTermsReady && (
           <RevealScreen
             creatorVaultUuid={room.creator_vault_uuid}
             joinerVaultUuid={room.joiner_vault_uuid}
@@ -286,24 +318,26 @@ function handleCancelSeal() {
           />
         )}
       </div>
-    {/* Confirmation dialog */}
+
+      {/* Seal confirmation modal */}
       {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-6">
-          <div className="w-full max-w-sm rounded-xl bg-gray-900 border border-gray-700 p-6 flex flex-col gap-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-6 backdrop-blur-sm">
+          <div className="gloss-panel w-full max-w-sm p-6 flex flex-col gap-4">
             <h2 className="text-white font-semibold text-lg">Seal your terms?</h2>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              Your terms will be locked and encrypted to the blockchain. <span className="text-white">This cannot be undone.</span> Make sure everything looks right before confirming.
+            <p className="text-white/40 text-sm leading-relaxed">
+              Your terms will be locked and encrypted to the blockchain.{" "}
+              <span className="text-white/80">This cannot be undone.</span> Make sure everything looks right before confirming.
             </p>
             <div className="flex gap-3 mt-2">
               <button
                 onClick={handleCancelSeal}
-                className="flex-1 rounded-lg border border-gray-700 px-4 py-2 text-sm font-semibold text-gray-300 hover:bg-gray-800 transition-colors"
+                className="flex-1 rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-white/45 hover:text-white/70 hover:bg-white/5 transition-colors"
               >
                 Go Back
               </button>
               <button
                 onClick={handleConfirmSeal}
-                className="flex-1 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-gray-950 hover:bg-gray-200 transition-colors"
+                className="flex-1 rounded-lg bg-[#7C72F5] px-4 py-2 text-sm font-semibold text-white hover:bg-[#6457E8] transition-colors glow-accent"
               >
                 Yes, Seal My Terms
               </button>
