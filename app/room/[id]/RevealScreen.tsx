@@ -682,6 +682,14 @@ export default function RevealScreen({
           )}
         </div>
       </div>
-    </>
+      {/* Chat panel for post-reveal negotiation */}
+        <ChatPanel
+          roomId={roomId}
+          address={walletClient?.account?.address ?? creatorAddress}
+          ensName={null}
+          isLocked={bothSigned}
+        />
+
+    </>  // this is the existing closing tag
   );
 }
