@@ -690,6 +690,6 @@ export default function RevealScreen({
           isLocked={bothSigned}
         />
 
-    </>  // this is the existing closing tag
+    </>
   );
 }

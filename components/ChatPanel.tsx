@@ -36,16 +36,22 @@ export default function ChatPanel({ roomId, address, ensName, isLocked }: ChatPa
 
   // Unread count when panel is closed
   useEffect(() => {
-    if (!open && messages.length > prevCountRef.current) {
-      setUnread((u) => u + (messages.length - prevCountRef.current));
-    }
-    prevCountRef.current = messages.length;
-  }, [messages, open]);
+  if (messages.length === 0) return;
+  if (!open) {
+    const newCount = messages.length - prevCountRef.current;
+    if (newCount > 0) setUnread((u) => u + newCount);
+  }
+  prevCountRef.current = messages.length;
+}, [messages]);
 
   // Clear unread when opened
   useEffect(() => {
-    if (open) setUnread(0);
-  }, [open]);
+  if (open) {
+    setUnread(0);
+    prevCountRef.current = messages.length;
+  }
+}, [open]);
+
 
   async function handleSend() {
     if (!input.trim() || !address || isLocked) return;
