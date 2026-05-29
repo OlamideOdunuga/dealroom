@@ -547,13 +547,24 @@ export default function RevealScreen({
               <div className={`w-2 h-2 rounded-full transition-colors ${joinerSigned ? "bg-[#4ADE80]" : "bg-white/15"}`} />
             </div>
           </div>
+{/* Negotiation warning */}
+          {!bothSigned && (
+            <div className="flex items-start gap-2 gloss-panel border border-yellow-700/40 bg-yellow-900/10 px-4 py-3">
+              <svg className="w-4 h-4 text-yellow-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              </svg>
+              <p className="text-yellow-400 text-xs leading-relaxed">
+                Use the chat below to negotiate before signing. Signing onchain is <span className="text-yellow-200 font-medium">final and irreversible.</span>
+              </p>
+            </div>
+          )}
 
           {bothSigned ? (
             <div className="gloss-panel px-4 py-4 flex flex-col items-center gap-2 border border-[#4ADE80]/25 bg-[#4ADE80]/5 shadow-[0_0_24px_rgba(74,222,128,0.07)]">
               <p className="text-[#4ADE80] text-sm font-semibold">🔒 Deal sealed onchain by both parties</p>
               {txHash && (
-                <a
-                  href={`https://aeneid.storyscan.io/tx/${txHash}`}
+                
+                  <a href={`https://aeneid.storyscan.io/tx/${txHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[#4ADE80]/55 text-xs underline hover:text-[#4ADE80] transition-colors"
@@ -682,13 +693,14 @@ export default function RevealScreen({
           )}
         </div>
       </div>
+
       {/* Chat panel for post-reveal negotiation */}
-        <ChatPanel
-          roomId={roomId}
-          address={walletClient?.account?.address ?? creatorAddress}
-          ensName={null}
-          isLocked={bothSigned}
-        />
+      <ChatPanel
+        roomId={roomId}
+        address={walletClient?.account?.address ?? creatorAddress}
+        ensName={null}
+        isLocked={bothSigned}
+      />
 
     </>
   );
