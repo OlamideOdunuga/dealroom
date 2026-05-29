@@ -109,6 +109,48 @@ function validateTerms(terms: any): void {
   }
 }
 
+// ── internal: shared seal logic ──────────────────────────────────────────────
+async function _sealVault(
+  terms: object,
+  walletClient: any,
+  publicClient: any,
+  counterpartyAddress: `0x${string}`
+): Promise<{ uuid: string }> {
+  const client = buildCDRClient(walletClient, publicClient);
+
+  const userAddress = walletClient.account?.address || walletClient.addresses?.[0];
+  if (!userAddress) {
+    throw new VaultError("UNKNOWN", "Wallet account address could not be resolved.");
+  }
+
+  const globalPubKey = await client.observer.getGlobalPubKey();
+  const termsJson = JSON.stringify(terms);
+  const dataKey = new TextEncoder().encode(termsJson);
+  const writeConditionData = encodeAbiParameters([{ type: "address" }], [userAddress]);
+
+  const { uuid } = await client.uploader.allocate({
+    updatable: false,
+    writeConditionAddr: "0x4C9bFC96d7092b590D497A191826C3dA2277c34B" as `0x${string}`,
+    writeConditionData,
+    readConditionAddr: counterpartyAddress,
+    readConditionData: "0x",
+    skipConditionValidation: true,
+  });
+
+  const label = uuidToLabel(uuid);
+  const ciphertext = await client.uploader.encryptDataKey({ dataKey, globalPubKey, label });
+
+  await client.uploader.write({
+    uuid,
+    accessAuxData: "0x",
+    encryptedData: toHex(ciphertext.raw),
+  });
+
+  console.log("[vault] sealed vault uuid:", uuid);
+  return { uuid: uuid.toString() };
+}
+
+// ── public exports ────────────────────────────────────────────────────────────
 export async function sealTermsVault(
   terms: object,
   walletClient: any,
@@ -117,63 +159,31 @@ export async function sealTermsVault(
 ): Promise<{ uuid: string; encryptedData: string }> {
   await ensureWasm();
   validateTerms(terms);
-  
-  const client = buildCDRClient(walletClient, publicClient);
-
-  // Safely extract address tracking to prevent dynamic wallet lookup failures
-  const userAddress = walletClient.account?.address || walletClient.addresses?.[0];
-  if (!userAddress) {
-    throw new VaultError("UNKNOWN", "Wallet account address could not be resolved.");
-  }
-
-  // To combine compatibility across different versions of the Pi Labs SDK payload parser:
-  // Generate a native symmetric dataKey used by threshold cryptosystems
   try {
-    console.log("[vault] fetching global pub key...");
-    const globalPubKey = await client.observer.getGlobalPubKey();
-    console.log("[vault] got global pub key");
-
-    const termsJson = JSON.stringify(terms);
-    const dataKey = new TextEncoder().encode(termsJson);
-    const writeConditionData = encodeAbiParameters([{ type: "address" }], [userAddress]);
-
-    // Step 1: Allocate vault on-chain
-    const { uuid } = await client.uploader.allocate({
-      updatable: false,
-      writeConditionAddr: "0x4C9bFC96d7092b590D497A191826C3dA2277c34B" as `0x${string}`,
-      writeConditionData,
-      readConditionAddr: counterpartyAddress,
-      readConditionData: "0x",
-      skipConditionValidation: true,
-    });
-
-    // Step 2: Encrypt the terms locally using the DKG public key
-    const label = uuidToLabel(uuid);
-    const ciphertext = await client.uploader.encryptDataKey({
-      dataKey,
-      globalPubKey,
-      label,
-    });
-
-    // Step 3: Write the ciphertext on-chain
-    await client.uploader.write({
-      uuid,
-      accessAuxData: "0x",
-      encryptedData: toHex(ciphertext.raw),
-    });
-
-    console.log("[vault] sealed vault uuid:", uuid);
-
-    return {
-      uuid: uuid.toString(),
-      encryptedData: "",
-    };
+    const { uuid } = await _sealVault(terms, walletClient, publicClient, counterpartyAddress);
+    return { uuid, encryptedData: "" };
   } catch (err) {
     console.error("[vault] raw error on seal:", err);
     throw err instanceof VaultError ? err : classifyError(err);
   }
 }
 
+export async function resubmitTermsVault(
+  terms: object,
+  walletClient: any,
+  publicClient: any,
+  counterpartyAddress: `0x${string}`
+): Promise<{ uuid: string }> {
+  await ensureWasm();
+  validateTerms(terms);
+  try {
+    const { uuid } = await _sealVault(terms, walletClient, publicClient, counterpartyAddress);
+    return { uuid };
+  } catch (err) {
+    console.error("[vault] raw error on resubmit:", err);
+    throw err instanceof VaultError ? err : classifyError(err);
+  }
+}
 export async function revealTermsVault(
   uuid: string,
   encryptedData: string,
