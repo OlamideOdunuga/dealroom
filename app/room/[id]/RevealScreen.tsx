@@ -344,9 +344,18 @@ useEffect(() => {
       editTerms, walletClient, publicClient, counterparty
     );
     await resubmitVault(roomId, userRole, uuid);
-    // update local state so comparison table refreshes immediately
-    setMyTerms(editTerms);
-    localStorage.setItem(`ownTerms_${roomId}`, JSON.stringify(editTerms));
+// also persist updated terms to Supabase so counterparty poll picks them up
+await supabase
+  .from("rooms")
+  .update(
+    userRole === "creator"
+      ? { creator_terms: JSON.stringify(editTerms) }
+      : { joiner_terms: JSON.stringify(editTerms) }
+  )
+  .eq("id", roomId);
+// update local state so comparison table refreshes immediately
+setMyTerms(editTerms);
+localStorage.setItem(`ownTerms_${roomId}`, JSON.stringify(editTerms));
     setResubmitDone(true);
     setIsEditing(false);
     await supabase.channel(`room:${roomId}`).send({
@@ -492,12 +501,13 @@ useEffect(() => {
   // ────────────────────────────────────────────────────────────
   // RENDER: Revealed
   // ────────────────────────────────────────────────────────────
-   const rows = [
-    { label: "Royalty",     mine: `${myTerms?.royaltySplit}%`,       theirs: `${theirTerms?.royaltySplit}%`,       match: royaltyMatch,       wrap: false },
-    { label: "Deliverable", mine: myTerms?.deliverable ?? "",         theirs: theirTerms?.deliverable ?? "",        match: deliverableMatch,   wrap: true  },
-    { label: "Timeline",    mine: myTerms?.timeline ?? "",            theirs: theirTerms?.timeline ?? "",           match: timelineMatch,      wrap: false },
-    { label: "Payment",     mine: `$${myTerms?.payment}`,            theirs: `$${theirTerms?.payment}`,            match: paymentMatch,       wrap: false },
-    { label: "Non-neg.",    mine: myTerms?.nonNegotiable ?? "",       theirs: theirTerms?.nonNegotiable ?? "",      match: nonNegotiableMatch, wrap: true  },
+  type Row = { label: string; mine: string; theirs: string; match: boolean; wrap: boolean; showBadge: boolean };
+const rows: Row[] = [ 
+   { label: "Royalty",     mine: `${myTerms?.royaltySplit}%`,       theirs: `${theirTerms?.royaltySplit}%`,       match: royaltyMatch,       wrap: false, showBadge: true  },
+{ label: "Deliverable", mine: myTerms?.deliverable ?? "",         theirs: theirTerms?.deliverable ?? "",        match: deliverableMatch,   wrap: true,  showBadge: false },
+{ label: "Timeline",    mine: myTerms?.timeline ?? "",            theirs: theirTerms?.timeline ?? "",           match: timelineMatch,      wrap: false, showBadge: true  },
+{ label: "Payment",     mine: `$${myTerms?.payment}`,            theirs: `$${theirTerms?.payment}`,            match: paymentMatch,       wrap: false, showBadge: true  },
+{ label: "Non-neg.",    mine: myTerms?.nonNegotiable ?? "",       theirs: theirTerms?.nonNegotiable ?? "",      match: nonNegotiableMatch, wrap: true,  showBadge: false },
   ];
 
   return (
@@ -556,15 +566,15 @@ useEffect(() => {
               </span>
               {/* Badge — staggered separately after rows */}
               <span
-                className={`w-[18%] flex justify-end ${row.wrap ? "pt-0.5" : ""}`}
-                style={{
-                  opacity:    visibleBadges.includes(i) ? 1 : 0,
-                  transform:  visibleBadges.includes(i) ? "scale(1)" : "scale(0.65)",
-                  transition: "opacity 0.25s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
-                }}
-              >
-                {matchBadge(row.match)}
-              </span>
+  className={`w-[18%] flex justify-end ${row.wrap ? "pt-0.5" : ""}`}
+  style={{
+    opacity:    visibleBadges.includes(i) ? 1 : 0,
+    transform:  visibleBadges.includes(i) ? "scale(1)" : "scale(0.65)",
+    transition: "opacity 0.25s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+  }}
+>
+  {row.showBadge && matchBadge(row.match)}
+</span>
             </div>
           ))}
         </div>
