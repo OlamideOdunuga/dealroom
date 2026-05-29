@@ -6,7 +6,6 @@ import { useAccount, useEnsName } from "wagmi";
 import { useRouter } from "next/navigation";
 import { createRoom, cancelRoom } from "@/lib/rooms";
 import { supabase } from "@/lib/supabase";
-import ChatPanel from "@/components/ChatPanel";
 
 type Room = {
   id: string;
@@ -402,15 +401,6 @@ export default function Home() {
             )}
           </div>
         )}
-        {/* Chat panel — visible once both parties have joined */}
-{joinerHasJoined && (
-  <ChatPanel
-    roomId={id}
-    address={address}
-    ensName={null}
-    isLocked={bothCommitted}
-  />
-)}
       </main>
 
       {/* Cancel confirm modal */}

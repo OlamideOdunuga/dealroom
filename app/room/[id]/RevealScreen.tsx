@@ -5,6 +5,7 @@ import { revealTermsVault, VaultError } from "@/lib/vault";
 import { useWriteContract, useReadContract } from "wagmi";
 import { DEAL_CONFIRMATION_ADDRESS, DEAL_CONFIRMATION_ABI } from "@/lib/contract";
 import { supabase } from "@/lib/supabase";
+import ChatPanel from "@/components/ChatPanel";
 
 type Terms = {
   royaltySplit: number;
