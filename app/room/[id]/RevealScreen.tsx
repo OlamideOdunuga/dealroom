@@ -126,6 +126,25 @@ const [resubmitDone,  setResubmitDone]  = useState(false);
     fetchTxFromStoryscan();
   }, [roomId, txHash]);
 
+  // ── Poll for counterparty resubmit ───────────────────────────
+useEffect(() => {
+  if (!revealed) return;
+  const interval = setInterval(async () => {
+    const { data } = await supabase
+      .from("rooms")
+      .select("creator_terms, joiner_terms")
+      .eq("id", roomId)
+      .single();
+    if (!data) return;
+    const theirRaw = userRole === "creator" ? data.joiner_terms : data.creator_terms;
+    if (theirRaw) {
+      const parsed = typeof theirRaw === "string" ? JSON.parse(theirRaw) : theirRaw;
+      setTheirTerms(parsed);
+    }
+  }, 3000);
+  return () => clearInterval(interval);
+}, [revealed, roomId, userRole]);
+
   // ── Card rise (tiny defer so DOM renders first) ──────────────
   useEffect(() => {
     if (!revealed) return;
