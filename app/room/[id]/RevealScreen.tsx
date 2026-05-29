@@ -343,16 +343,7 @@ useEffect(() => {
     const { uuid } = await resubmitTermsVault(
       editTerms, walletClient, publicClient, counterparty
     );
-    await resubmitVault(roomId, userRole, uuid);
-// also persist updated terms to Supabase so counterparty poll picks them up
-await supabase
-  .from("rooms")
-  .update(
-    userRole === "creator"
-      ? { creator_terms: JSON.stringify(editTerms) }
-      : { joiner_terms: JSON.stringify(editTerms) }
-  )
-  .eq("id", roomId);
+    await resubmitVault(roomId, userRole, uuid, JSON.stringify(editTerms));
 // update local state so comparison table refreshes immediately
 setMyTerms(editTerms);
 localStorage.setItem(`ownTerms_${roomId}`, JSON.stringify(editTerms));
