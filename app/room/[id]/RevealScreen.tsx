@@ -6,6 +6,8 @@ import { useWriteContract, useReadContract } from "wagmi";
 import { DEAL_CONFIRMATION_ADDRESS, DEAL_CONFIRMATION_ABI } from "@/lib/contract";
 import { supabase } from "@/lib/supabase";
 import ChatPanel from "@/components/ChatPanel";
+import { resubmitTermsVault } from "@/lib/vault";
+import { resubmitVault } from "@/lib/rooms";
 
 type Terms = {
   royaltySplit: number;
@@ -60,6 +62,11 @@ export default function RevealScreen({
   const [txHash,      setTxHash]      = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [previewHtml, setPreviewHtml] = useState<string>("");
+  const [isEditing,     setIsEditing]     = useState(false);
+const [editTerms,     setEditTerms]     = useState<Terms | null>(null);
+const [isResubmitting,setIsResubmitting]= useState(false);
+const [resubmitError, setResubmitError] = useState<string | null>(null);
+const [resubmitDone,  setResubmitDone]  = useState(false);
 
   // ── Animation state ──────────────────────────────────────────
  const [isCountingDown, setIsCountingDown] = useState(false);
@@ -306,6 +313,30 @@ export default function RevealScreen({
     URL.revokeObjectURL(url);
   }
 
+  async function handleResubmit() {
+  if (!editTerms || !walletClient) return;
+  setIsResubmitting(true);
+  setResubmitError(null);
+  try {
+    const counterparty = userRole === "creator"
+      ? joinerAddress as `0x${string}`
+      : creatorAddress as `0x${string}`;
+    const { uuid } = await resubmitTermsVault(
+      editTerms, walletClient, publicClient, counterparty
+    );
+    await resubmitVault(roomId, userRole, uuid);
+    // update local state so comparison table refreshes immediately
+    setMyTerms(editTerms);
+    localStorage.setItem(`ownTerms_${roomId}`, JSON.stringify(editTerms));
+    setResubmitDone(true);
+    setIsEditing(false);
+  } catch (e) {
+    setResubmitError(e instanceof Error ? e.message : "Resubmit failed. Please try again.");
+  } finally {
+    setIsResubmitting(false);
+  }
+}
+
   // ── Match badge ──────────────────────────────────────────────
   function matchBadge(isMatch: boolean) {
     return isMatch ? (
@@ -523,6 +554,110 @@ export default function RevealScreen({
           <span className="text-xl font-bold text-white/30">5</span>
           <span className="text-white/35 text-sm ml-1">fields aligned</span>
         </div>
+
+        {/* ── Edit my terms ── */}
+{!bothSigned && !confirmed && buttonsReady && (
+  <div className="gloss-panel px-4 py-3 flex flex-col gap-3">
+    <div className="flex items-center justify-between">
+      <p className="text-xs text-white/30 uppercase tracking-wider">Your Terms</p>
+      {!isEditing && (
+        <button
+          onClick={() => { setEditTerms(myTerms); setIsEditing(true); setResubmitError(null); }}
+          className="text-xs text-[#7C72F5] hover:text-[#9D95F7] transition-colors"
+        >
+          Edit
+        </button>
+      )}
+    </div>
+
+    {isEditing ? (
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-white/30">Royalty Split (%)</label>
+          <input
+            type="number" min={0} max={100}
+            value={editTerms?.royaltySplit ?? ""}
+            onChange={e => setEditTerms(p => p ? { ...p, royaltySplit: Number(e.target.value) } : p)}
+            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#7C72F5]/50"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-white/30">Deliverable</label>
+          <textarea
+            value={editTerms?.deliverable ?? ""}
+            onChange={e => setEditTerms(p => p ? { ...p, deliverable: e.target.value } : p)}
+            rows={2}
+            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#7C72F5]/50 resize-none"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-white/30">Timeline</label>
+          <input
+            type="date"
+            value={editTerms?.timeline ?? ""}
+            onChange={e => setEditTerms(p => p ? { ...p, timeline: e.target.value } : p)}
+            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#7C72F5]/50"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-white/30">Payment ($)</label>
+          <input
+            type="number" min={0}
+            value={editTerms?.payment ?? ""}
+            onChange={e => setEditTerms(p => p ? { ...p, payment: Number(e.target.value) } : p)}
+            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#7C72F5]/50"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs text-white/30">Non-negotiable</label>
+          <textarea
+            value={editTerms?.nonNegotiable ?? ""}
+            onChange={e => setEditTerms(p => p ? { ...p, nonNegotiable: e.target.value } : p)}
+            rows={2}
+            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#7C72F5]/50 resize-none"
+          />
+        </div>
+
+        {resubmitError && (
+          <p className="text-red-400 text-xs">{resubmitError}</p>
+        )}
+        {resubmitDone && (
+          <p className="text-[#4ADE80] text-xs">✓ Terms resealed to CDR vault. Comparison updated.</p>
+        )}
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => { setIsEditing(false); setResubmitError(null); }}
+            className="flex-1 gloss-panel px-4 py-2 text-xs text-white/40 hover:text-white/70 transition-colors rounded-lg"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleResubmit}
+            disabled={isResubmitting}
+            className="flex-1 rounded-lg bg-[#7C72F5] px-4 py-2 text-xs font-semibold text-white hover:bg-[#6457E8] disabled:opacity-60 transition-colors glow-accent"
+          >
+            {isResubmitting ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Resealing...
+              </span>
+            ) : "Reseal to CDR Vault"}
+          </button>
+        </div>
+      </div>
+    ) : (
+      <div className="flex flex-col gap-1.5 text-xs text-white/50">
+        <span>Royalty: <span className="text-white/70">{myTerms?.royaltySplit}%</span></span>
+        <span>Payment: <span className="text-white/70">${myTerms?.payment}</span></span>
+        <span>Timeline: <span className="text-white/70">{myTerms?.timeline}</span></span>
+      </div>
+    )}
+  </div>
+)}
 
         {/* ── Action area — gated until sequence completes ── */}
         <div

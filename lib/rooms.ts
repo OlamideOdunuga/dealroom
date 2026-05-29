@@ -114,3 +114,17 @@ export async function cancelRoom(roomId: string): Promise<void> {
 
   if (error) throw error;
 }
+export async function resubmitVault(
+  roomId: string,
+  role: "creator" | "joiner",
+  newVaultUuid: string,
+): Promise<void> {
+  const field = role === "creator" ? "creator_vault_uuid" : "joiner_vault_uuid";
+
+  const { error } = await supabase
+    .from("rooms")
+    .update({ [field]: newVaultUuid })
+    .eq("id", roomId);
+
+  if (error) throw error;
+}
