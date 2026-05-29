@@ -330,6 +330,11 @@ const [resubmitDone,  setResubmitDone]  = useState(false);
     localStorage.setItem(`ownTerms_${roomId}`, JSON.stringify(editTerms));
     setResubmitDone(true);
     setIsEditing(false);
+    await supabase.channel(`room:${roomId}`).send({
+      type: "broadcast",
+      event: "terms_updated",
+      payload: { role: userRole },
+    });
   } catch (e) {
     setResubmitError(e instanceof Error ? e.message : "Resubmit failed. Please try again.");
   } finally {
@@ -562,7 +567,7 @@ const [resubmitDone,  setResubmitDone]  = useState(false);
       <p className="text-xs text-white/30 uppercase tracking-wider">Your Terms</p>
       {!isEditing && (
         <button
-          onClick={() => { setEditTerms(myTerms); setIsEditing(true); setResubmitError(null); }}
+          onClick={() => { setEditTerms(myTerms); setIsEditing(true); setResubmitError(null); setResubmitDone(false); }}
           className="text-xs text-[#7C72F5] hover:text-[#9D95F7] transition-colors"
         >
           Edit
@@ -694,6 +699,14 @@ const [resubmitDone,  setResubmitDone]  = useState(false);
             </div>
           )}
 
+          {resubmitDone && (
+  <div className="gloss-panel px-4 py-3 border border-yellow-700/40 bg-yellow-900/10">
+    <p className="text-yellow-400 text-xs text-center">
+      You resealed your terms. The other party must re-reveal before either party can sign.
+    </p>
+  </div>
+)}
+
           {bothSigned ? (
             <div className="gloss-panel px-4 py-4 flex flex-col items-center gap-2 border border-[#4ADE80]/25 bg-[#4ADE80]/5 shadow-[0_0_24px_rgba(74,222,128,0.07)]">
               <p className="text-[#4ADE80] text-sm font-semibold">🔒 Deal sealed onchain by both parties</p>
@@ -714,9 +727,10 @@ const [resubmitDone,  setResubmitDone]  = useState(false);
               <p className="text-[#4ADE80]/45 text-xs mt-1">Waiting for the other party to sign</p>
             </div>
           ) : (
+          
             <button
               onClick={handleConfirmDeal}
-              disabled={isConfirming}
+              disabled={isConfirming || resubmitDone}
               className="w-full rounded-lg bg-green-600 px-6 py-3 text-sm font-semibold text-white hover:bg-green-500 disabled:opacity-60 transition-colors"
             >
               {isConfirming ? (
