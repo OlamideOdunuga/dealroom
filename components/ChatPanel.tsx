@@ -126,14 +126,14 @@ export default function ChatPanel({ roomId, address, ensName, isLocked }: ChatPa
                     {msg.sender_ens || formatAddress(msg.sender_address)} · {formatTime(msg.created_at)}
                   </p>
                   <div
-                    className={`max-w-[85%] rounded-xl px-3 py-2 text-sm leading-relaxed ${
-                      isOwn
-                        ? "bg-[#7C72F5] text-white"
-                        : "bg-white/[0.06] text-white/80"
-                    }`}
-                  >
-                    {msg.content}
-                  </div>
+                 className={`max-w-[85%] rounded-xl px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${
+                 isOwn
+                  ? "bg-[#7C72F5] text-white"
+                  : "bg-white/[0.06] text-white/80"
+                 }`}
+                 >
+                  {msg.content}
+                 </div>
                 </div>
               );
             })}
