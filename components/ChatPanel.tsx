@@ -152,20 +152,20 @@ export default function ChatPanel({ roomId, address, ensName, isLocked }: ChatPa
               </p>
             ) : (
               <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => {
-                 const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-                 if (e.key === "Enter" && !e.shiftKey && !isMobile) {
-                 e.preventDefault();
-                 handleSend();
-                 }
-                 }}
-                  placeholder="Type a message..."
-                  className="flex-1 rounded-lg bg-white/[0.06] px-3 py-2 text-sm text-white placeholder-white/20 outline-none focus:ring-1 focus:ring-[#7C72F5]/50"
-                />
+               <textarea
+  value={input}
+  onChange={(e) => setInput(e.target.value)}
+  onKeyDown={(e) => {
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    if (e.key === "Enter" && !e.shiftKey && !isMobile) {
+      e.preventDefault();
+      handleSend();
+    }
+  }}
+  placeholder="Type a message..."
+  rows={1}
+  className="flex-1 rounded-lg bg-white/[0.06] px-3 py-2 text-sm text-white placeholder-white/20 outline-none focus:ring-1 focus:ring-[#7C72F5]/50 resize-none"
+/>
                 <button
                   onClick={handleSend}
                   disabled={!input.trim()}
