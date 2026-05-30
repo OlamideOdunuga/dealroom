@@ -259,18 +259,8 @@ const [resubmitDone,  setResubmitDone]  = useState(false);
         ) as Terms;
       }
       const storedTerms = localStorage.getItem(`ownTerms_${roomId}`);
-const localTerms  = storedTerms ? JSON.parse(storedTerms) : null;
-// fetch latest own terms from Supabase to avoid stale prop/localStorage
-const { data: freshRoom } = await supabase
-  .from("rooms")
-  .select("creator_terms, joiner_terms")
-  .eq("id", roomId)
-  .single();
-const freshTerms = freshRoom
-  ? (userRole === "creator" ? freshRoom.creator_terms : freshRoom.joiner_terms)
-  : null;
-const parsedFresh = freshTerms ? JSON.parse(freshTerms) : null;
-const myT = (parsedFresh || localTerms || ownTerms) as Terms;
+      const localTerms  = storedTerms ? JSON.parse(storedTerms) : null;
+      const myT         = (ownTerms || localTerms) as Terms;
       setIsRevealing(false);
       startRevealSequence(myT, theirT);
     } catch (e) {
