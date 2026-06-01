@@ -804,7 +804,7 @@ const rows: Row[] = [
                 </div>
               )}
               <p className="text-xs text-white/20 mt-1 border-t border-white/[0.05] pt-3">
-                Calculated midpoints — both parties must agree to proceed.
+                Calculated midpoints, both parties must agree to proceed.
               </p>
             </div>
           )}

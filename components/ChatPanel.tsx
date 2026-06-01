@@ -144,7 +144,7 @@ export default function ChatPanel({ roomId, address, ensName, isLocked }: ChatPa
           <div className="px-4 py-3 border-t border-white/[0.06]">
             {isLocked ? (
               <p className="text-white/25 text-xs text-center py-1">
-                🔒 Chat locked — deal is sealed
+                🔒 Chat locked. Deal is sealed
               </p>
             ) : !address ? (
               <p className="text-white/25 text-xs text-center py-1">
