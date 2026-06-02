@@ -754,7 +754,7 @@ const rows: Row[] = [
             pointerEvents: buttonsReady ? "auto" : "none",
           }}
         >
-          {myTerms && theirTerms && alignedCount < 5 && (
+          {myTerms && theirTerms && !royaltyMatch && (
             <div className="gloss-panel p-4 flex flex-col gap-3 mb-4">
               <p className="text-xs text-white/30 uppercase tracking-wider">Suggested Compromise</p>
               {!royaltyMatch && (
@@ -765,33 +765,7 @@ const rows: Row[] = [
                   </span>
                 </div>
               )}
-              {!paymentMatch && (
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-white/40">Upfront payment</span>
-                  <span className="text-white font-medium">${Math.round((myTerms.payment + theirTerms.payment) / 2)}</span>
-                </div>
-              )}
-              {!timelineMatch && (
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-white/40">Timeline</span>
-                  <span className="text-white font-medium">
-                    {new Date((new Date(myTerms.timeline).getTime() + new Date(theirTerms.timeline).getTime()) / 2)
-                      .toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                  </span>
-                </div>
-              )}
-              {!deliverableMatch && (
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-white/40">Deliverable</span>
-                  <span className="text-white/30 text-xs italic">Needs direct discussion</span>
-                </div>
-              )}
-              {!nonNegotiableMatch && (
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-white/40">Non-negotiable</span>
-                  <span className="text-white/30 text-xs italic">Needs direct discussion</span>
-                </div>
-              )}
+            
               <p className="text-xs text-white/20 mt-1 border-t border-white/[0.05] pt-3">
                 Calculated midpoints, both parties must agree to proceed.
               </p>
