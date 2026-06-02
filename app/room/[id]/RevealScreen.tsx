@@ -182,8 +182,7 @@ const [resubmitDone,  setResubmitDone]  = useState(false);
 
   // ── Derived match values ─────────────────────────────────────
   const royaltyMatch = myTerms && theirTerms
-    ? myTerms.royaltySplit + theirTerms.royaltySplit >= 90 &&
-      myTerms.royaltySplit + theirTerms.royaltySplit <= 110
+    ? myTerms.royaltySplit + theirTerms.royaltySplit === 100
     : false;
   const paymentMatch = myTerms && theirTerms
     ? Math.abs(myTerms.payment - theirTerms.payment) /
@@ -198,9 +197,7 @@ const [resubmitDone,  setResubmitDone]  = useState(false);
   const nonNegotiableMatch = myTerms && theirTerms
     ? myTerms.nonNegotiable.toLowerCase() === theirTerms.nonNegotiable.toLowerCase()
     : false;
-  const alignedCount = [
-    royaltyMatch, paymentMatch, deliverableMatch, timelineMatch, nonNegotiableMatch,
-  ].filter(Boolean).length;
+  const alignedCount = 0;
 
   // ── Actions ──────────────────────────────────────────────────
   async function handleConfirmDeal() {
@@ -288,7 +285,7 @@ const [resubmitDone,  setResubmitDone]  = useState(false);
       timeline: !timelineMatch ? new Date((new Date(myTerms.timeline).getTime() + new Date(theirTerms.timeline).getTime()) / 2)
           .toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : null,
     };
-    const html = `<!DOCTYPE html><html><head><title>Deal Room Summary — ${roomId}</title><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#111;padding:48px;font-size:14px;}h1{font-size:22px;font-weight:700;margin-bottom:4px;}.meta{color:#666;font-size:12px;margin-bottom:32px;}.section{margin-bottom:28px;}.section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:12px;}table{width:100%;border-collapse:collapse;}th{text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;color:#888;padding:6px 10px;border-bottom:2px solid #eee;}td{padding:10px;border-bottom:1px solid #f0f0f0;font-size:13px;}.badge-match{background:#d1fae5;color:#065f46;font-size:11px;padding:2px 8px;border-radius:999px;font-weight:500;}.badge-gap{background:#fef3c7;color:#92400e;font-size:11px;padding:2px 8px;border-radius:999px;font-weight:500;}.summary-box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;}.summary-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:13px;}.summary-row:last-child{border-bottom:none;}.label{color:#666;}.value{font-weight:600;}.footer{margin-top:40px;padding-top:16px;border-top:1px solid #eee;font-size:11px;color:#aaa;}</style></head><body><h1>Deal Room Summary</h1><p class="meta">Room ID: ${roomId} &nbsp;·&nbsp; Generated: ${now}</p><div class="section"><p class="section-title">Parties</p><div class="summary-box"><div class="summary-row"><span class="label">Creator</span><span class="value">${creatorAddress}</span></div><div class="summary-row"><span class="label">Counterparty</span><span class="value">${joinerAddress}</span></div></div></div><div class="section"><p class="section-title">Terms Comparison</p><table><thead><tr><th>Field</th><th>Your Terms</th><th>Their Terms</th><th>Status</th></tr></thead><tbody><tr><td>Royalty Split</td><td>${myTerms.royaltySplit}%</td><td>${theirTerms.royaltySplit}%</td><td><span class="${royaltyMatch?'badge-match':'badge-gap'}">${royaltyMatch?'Close match':'Gap'}</span></td></tr><tr><td>Deliverable</td><td>${myTerms.deliverable}</td><td>${theirTerms.deliverable}</td><td></td></tr><tr><td>Timeline</td><td>${myTerms.timeline}</td><td>${theirTerms.timeline}</td><td></td></tr><tr><td>Payment</td><td>$${myTerms.payment}</td><td>$${theirTerms.payment}</td><td><span class="${paymentMatch?'badge-match':'badge-gap'}">${paymentMatch?'Close match':'Gap'}</span></td></tr><tr><td>Non-negotiable</td><td>${myTerms.nonNegotiable}</td><td>${theirTerms.nonNegotiable}</td><td></td></tr></tbody></table></div><div class="section"><p style="font-size:15px;font-weight:700;margin-bottom:4px;">${alignedCount} / 5 fields aligned</p>${compromise.royalty||compromise.payment||compromise.timeline?`<p class="section-title" style="margin-top:16px;">Suggested Compromise</p><div class="summary-box">${compromise.royalty?`<div class="summary-row"><span class="label">Royalty split</span><span class="value">${compromise.royalty}</span></div>`:''} ${compromise.payment?`<div class="summary-row"><span class="label">Upfront payment</span><span class="value">${compromise.payment}</span></div>`:''} ${compromise.timeline?`<div class="summary-row"><span class="label">Timeline</span><span class="value">${compromise.timeline}</span></div>`:''}</div>`:''}</div><div class="section"><p class="section-title">Onchain Agreement</p><div class="summary-box"><div class="summary-row"><span class="label">Creator</span><span class="value">${creatorSigned?'✓ Signed':'Pending'}</span></div><div class="summary-row"><span class="label">Counterparty</span><span class="value">${joinerSigned?'✓ Signed':'Pending'}</span></div></div></div><div class="footer"><p>Terms sealed via Confidential Data Rails (CDR) on Story Protocol · dealroom-red.vercel.app</p></div></body></html>`;
+    const html = `<!DOCTYPE html><html><head><title>Deal Room Summary — ${roomId}</title><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#111;padding:48px;font-size:14px;}h1{font-size:22px;font-weight:700;margin-bottom:4px;}.meta{color:#666;font-size:12px;margin-bottom:32px;}.section{margin-bottom:28px;}.section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:12px;}table{width:100%;border-collapse:collapse;}th{text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;color:#888;padding:6px 10px;border-bottom:2px solid #eee;}td{padding:10px;border-bottom:1px solid #f0f0f0;font-size:13px;}.badge-match{background:#d1fae5;color:#065f46;font-size:11px;padding:2px 8px;border-radius:999px;font-weight:500;}.badge-gap{background:#fef3c7;color:#92400e;font-size:11px;padding:2px 8px;border-radius:999px;font-weight:500;}.summary-box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;}.summary-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:13px;}.summary-row:last-child{border-bottom:none;}.label{color:#666;}.value{font-weight:600;}.footer{margin-top:40px;padding-top:16px;border-top:1px solid #eee;font-size:11px;color:#aaa;}</style></head><body><h1>Deal Room Summary</h1><p class="meta">Room ID: ${roomId} &nbsp;·&nbsp; Generated: ${now}</p><div class="section"><p class="section-title">Parties</p><div class="summary-box"><div class="summary-row"><span class="label">Creator</span><span class="value">${creatorAddress}</span></div><div class="summary-row"><span class="label">Counterparty</span><span class="value">${joinerAddress}</span></div></div></div><div class="section"><p class="section-title">Terms Comparison</p><table><thead><tr><th>Field</th><th>Your Terms</th><th>Their Terms</th><th>Status</th></tr></thead><tbody><tr><td>Royalty Split</td><td>${myTerms.royaltySplit}%</td><td>${theirTerms.royaltySplit}%</td><td><span class="${royaltyMatch?'badge-match':'badge-gap'}">${royaltyMatch?'Close match':'Gap'}</span></td></tr><tr><td>Deliverable</td><td>${myTerms.deliverable}</td><td>${theirTerms.deliverable}</td><td></td></tr><tr><td>Timeline</td><td>${myTerms.timeline}</td><td>${theirTerms.timeline}</td><td></td></tr><tr><td>Payment</td><td>$${myTerms.payment}</td><td>$${theirTerms.payment}</td><td><span class="${paymentMatch?'badge-match':'badge-gap'}">${paymentMatch?'Close match':'Gap'}</span></td></tr><tr><td>Non-negotiable</td><td>${myTerms.nonNegotiable}</td><td>${theirTerms.nonNegotiable}</td><td></td></tr></tbody></table></div><div class="section"><p style="font-size:15px;font-weight:700;margin-bottom:4px;">Royalty Split: ${royaltyMatch ? '✓ Aligned' : 'Gap'}</p>${compromise.royalty||compromise.payment||compromise.timeline?`<p class="section-title" style="margin-top:16px;">Suggested Compromise</p><div class="summary-box">${compromise.royalty?`<div class="summary-row"><span class="label">Royalty split</span><span class="value">${compromise.royalty}</span></div>`:''} ${compromise.payment?`<div class="summary-row"><span class="label">Upfront payment</span><span class="value">${compromise.payment}</span></div>`:''} ${compromise.timeline?`<div class="summary-row"><span class="label">Timeline</span><span class="value">${compromise.timeline}</span></div>`:''}</div>`:''}</div><div class="section"><p class="section-title">Onchain Agreement</p><div class="summary-box"><div class="summary-row"><span class="label">Creator</span><span class="value">${creatorSigned?'✓ Signed':'Pending'}</span></div><div class="summary-row"><span class="label">Counterparty</span><span class="value">${joinerSigned?'✓ Signed':'Pending'}</span></div></div></div><div class="footer"><p>Terms sealed via Confidential Data Rails (CDR) on Story Protocol · dealroom-red.vercel.app</p></div></body></html>`;
     return html;
   }
 
@@ -485,8 +482,8 @@ localStorage.setItem(`ownTerms_${roomId}`, JSON.stringify(editTerms));
 const rows: Row[] = [ 
    { label: "Royalty",     mine: `${myTerms?.royaltySplit}%`,       theirs: `${theirTerms?.royaltySplit}%`,       match: royaltyMatch,       wrap: false, showBadge: true  },
 { label: "Deliverable", mine: myTerms?.deliverable ?? "",         theirs: theirTerms?.deliverable ?? "",        match: deliverableMatch,   wrap: true,  showBadge: false },
-{ label: "Timeline", your: myTerms.timeline, their: theirTerms.timeline, match: timelineMatch, showBadge: false },
-{ label: "Payment",     mine: `$${myTerms?.payment}`,            theirs: `$${theirTerms?.payment}`,            match: paymentMatch,       wrap: false, showBadge: true  },
+{ label: "Timeline", mine: myTerms?.timeline ?? "", theirs: theirTerms?.timeline ?? "", match: timelineMatch, wrap: false, showBadge: false },
+{ label: "Payment",     mine: `$${myTerms?.payment}`,            theirs: `$${theirTerms?.payment}`,            match: paymentMatch,       wrap: false, showBadge: false },
 { label: "Non-neg.",    mine: myTerms?.nonNegotiable ?? "",       theirs: theirTerms?.nonNegotiable ?? "",      match: nonNegotiableMatch, wrap: true,  showBadge: false },
   ];
 
@@ -559,15 +556,7 @@ const rows: Row[] = [
           ))}
         </div>
 
-        {/* Alignment score */}
-        <div className="gloss-panel px-4 py-3 flex items-center justify-center gap-2">
-          <span className="text-xl font-bold text-white" style={{ transition: "all 0.2s ease" }}>
-            {displayCount}
-          </span>
-          <span className="text-white/30 text-sm">/</span>
-          <span className="text-xl font-bold text-white/30">5</span>
-          <span className="text-white/35 text-sm ml-1">fields aligned</span>
-        </div>
+         
 
         {/* ── Edit my terms ── */}
 {!bothSigned && !confirmed && buttonsReady && (
